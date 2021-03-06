@@ -1,0 +1,37 @@
+[2021-03-05 22:15:52,943] django.utils.autoreload:[INFO]:[autoreload:run_with_reloader:617]:[MainProcess:6398]:Watching for file changes with StatReloader
+[2021-03-05 22:17:19,682] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 302 0
+[2021-03-05 22:17:19,713] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/login/ HTTP/1.1" 200 4606
+[2021-03-05 22:17:19,826] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /static/css/hospital/login.css HTTP/1.1" 304 0
+[2021-03-05 22:17:20,081] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/changeVerifyCode/?t=1614953839973 HTTP/1.1" 200 975
+[2021-03-05 22:17:39,462] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"POST /hospital_client/login/ HTTP/1.1" 302 0
+[2021-03-05 22:17:39,522] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:17:39,648] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:18:03,552] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:18:03,598] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:18:03,672] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /static/img/hospital/favicon.png HTTP/1.1" 200 4286
+[2021-03-05 22:18:04,586] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:18:04,631] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:18:04,692] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /static/img/hospital/favicon.png HTTP/1.1" 200 4286
+[2021-03-05 22:18:05,154] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:18:05,204] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:18:05,282] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /static/img/hospital/favicon.png HTTP/1.1" 200 4286
+[2021-03-05 22:18:10,952] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:18:10,985] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6398]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:18:21,342] django.utils.autoreload:[INFO]:[autoreload:run_with_reloader:617]:[MainProcess:6483]:Watching for file changes with StatReloader
+[2021-03-05 22:18:30,605] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6483]:"GET /hospital_client/index/ HTTP/1.1" 200 12592
+[2021-03-05 22:18:30,672] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6483]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:19:01,722] django.utils.autoreload:[INFO]:[autoreload:run_with_reloader:617]:[MainProcess:6775]:Watching for file changes with StatReloader
+[2021-03-05 22:19:07,371] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /hospital_client/index/ HTTP/1.1" 302 0
+[2021-03-05 22:19:07,395] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /hospital_client/login/ HTTP/1.1" 200 4606
+[2021-03-05 22:19:07,481] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/css/hospital/login.css HTTP/1.1" 200 1815
+[2021-03-05 22:19:07,512] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/js/hospital/jQuery.md5.js HTTP/1.1" 200 7675
+[2021-03-05 22:19:07,517] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/js/hospital/jquery-1.12.3.min.js HTTP/1.1" 200 97180
+[2021-03-05 22:19:07,577] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/img/hospital/login-wel.png HTTP/1.1" 200 186594
+[2021-03-05 22:19:07,703] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /hospital_client/changeVerifyCode/?t=1614953947653 HTTP/1.1" 200 898
+[2021-03-05 22:19:18,654] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"POST /hospital_client/login/ HTTP/1.1" 200 13154
+[2021-03-05 22:19:18,691] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/layui/layui.js HTTP/1.1" 200 7395
+[2021-03-05 22:19:18,700] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /hospital_client/home/ HTTP/1.1" 200 177
+[2021-03-05 22:19:18,711] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/layui/css/layui.css HTTP/1.1" 200 95407
+[2021-03-05 22:19:18,720] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/fonts/hospital/iconfont.css HTTP/1.1" 200 33246
+[2021-03-05 22:19:18,744] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/layui/lay/modules/element.js HTTP/1.1" 200 7264
+[2021-03-05 22:19:18,851] django.server:[INFO]:[basehttp:log_message:157]:[MainProcess:6775]:"GET /static/layui/font/iconfont.woff2?v=256 HTTP/1.1" 200 25964

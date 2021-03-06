@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>角色授权管理</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="layuiadmin-form-admin" id="layuiadmin-form-admin" style="padding: 20px 30px 0 0;">
+    <div id="Authority-tree"></div>
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-back-submit" value="确认">
+    </div>
+</div>
+
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script>
+    function child() {
+        var checkData = tree.getChecked('Auth_tree');
+        return checkData;
+    }
+
+    function preAuthority(roleId){
+        {#console.log(roleId);#}
+        $.get("{% url 'hospital_client:roleManage' type='menuData' %}", {roleId:roleId}, function (data) {
+            {#console.log(data);#}
+            tree.render({
+                elem: '#Authority-tree'
+                ,data: data.menuData
+                ,showCheckbox: true
+                ,id: 'Auth_tree'
+            });
+            //执行节点勾选
+            tree.setChecked('Auth_tree', data.checkedId); //批量勾选
+        });
+    }
+
+    layui.use(['form', 'tree'], function () {
+        window.tree = layui.tree;
+        var $ = layui.jquery;
+        var form = layui.form;
+
+    });
+</script>
+</body>
+</html>

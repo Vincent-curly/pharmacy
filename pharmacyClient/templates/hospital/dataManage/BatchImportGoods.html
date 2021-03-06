@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>药品基础数据导入</title>
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                    <div class="col-xs-12" style="text-align: center">
+                        <a href="{% static 'import_templates/herbsimportZY.xlsx' %}" target="_blank"><button type="button" class="layui-btn" id="test-upload-type1">中药批量入库模板</button></a>
+                        <a href="" target="_blank"><button type="button" class="layui-btn" id="test-upload-type1">西药批量入库模板</button></a>
+                        </div>
+                    <div class="col-xs-12" style="text-align: center">
+                        上传药材数据前,先下载模板
+                    </div>
+                    <div class="col-xs-12" style="text-align: center;padding-left: 60px">
+                        <div class="layui-inline">
+                            <p>excel上传</p>
+                        </div>
+                        <div class="layui-inline">
+                            <input type="file" name="file" id="file_upload">
+                        </div>
+                    </div>
+                    <div class="col-xs-12 layui-inline" style="text-align: center">
+                        <button type="button" id="upload" class="layui-btn"> 提交</button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+{#<script src="{% static 'js/backstage/jquery-1.12.3.min.js' %}"></script>#}
+<script>
+    //JavaScript代码区域
+
+    layui.use(['element', 'form', 'upload', 'layer'], function () {
+        window.$ = layui.jquery;
+        var element = layui.element;
+        var form = layui.form;
+        var layer = layui.layer;
+        var upload = layui.upload;
+
+        upload.render({
+            elem: '#file_upload'
+            ,url: '{% url 'hospital_client:batchImportDrugs' %}'
+            ,accept: 'file' //允许上传的文件类型
+            ,auto: false //选择文件后不自动上传
+            ,bindAction: '#upload' //指向一个按钮触发上传
+            ,choose: function(obj){
+                //将每次选择的文件追加到文件队列
+                var files = obj.pushFile();
+                console.log(files);
+                //预读本地文件，如果是多文件，则会遍历。(不支持ie8/9)
+                obj.preview(function(index, file, result){
+                    console.log(index); //得到文件索引
+                    console.log(file); //得到文件对象
+                    {#console.log(result); //得到文件base64编码，比如图片#}
+
+                    //obj.resetFile(index, file, '123.jpg'); //重命名文件名，layui 2.3.0 开始新增
+
+                    //这里还可以做一些 append 文件列表 DOM 的操作
+
+                    //obj.upload(index, file); //对上传失败的单个文件重新上传，一般在某个事件中使用
+                    //delete files[index]; //删除列表中对应的文件，一般在某个事件中使用
+                });
+            }
+            ,done: function(res){
+                layer.msg(res.message);
+            }
+        });
+
+
+
+    })
+
+
+</script>
+</body>
+</html>

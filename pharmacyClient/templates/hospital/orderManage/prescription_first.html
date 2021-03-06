@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>处方信息录入</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="firstStep">
+    <table class="layui-table details_table1" width="100%" border="0" cellpadding="0" cellspacing="0">
+        <thead>
+        <tr>
+            <th colspan="8"><p style="float: left;color: firebrick"><b>诊疗卡号：［{{ treat_card_id }}］</b></p>处方基本信息<p style="float: right;color: red"><b>处方号：［］</b></p></th>
+        </tr>
+        </thead>
+        <tbody class="layui-form" lay-filter="presBaseInfo">
+        <input type="hidden" class="table_input" value="{{ treat_card_id }}" name="treat_card" id="treat_card">
+        <tr>
+            <td width="10%">姓名&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" class="table_input" name="user_name" id="user_name" style="width: 130px"></td>
+            <td width="10%">年龄&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" name="age" id="age" class="table_input" style="width: 100px"></td>
+            <td width="10%">性别&nbsp;<span class="red">*</span></td>
+            <td width="10%">
+                <select name="gender" id="gender" style="width: 50px">
+                    <option value="">请选择</option>
+                    <option value="0" >女</option>
+                    <option value="1" >男</option>
+                </select>
+            </td>
+            <td width="10%">联系手机&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" name="tel" id="tel" class="table_input" style="width: 120px"></td>
+        </tr>
+        <tr>
+            <td width="20%">医生姓名</td>
+            <td width="10%"><input type="text" class="table_input" name="doctor" id="doctor" style="width: 130px"></td>
+            <td width="10%">科室名称</td>
+            <td width="10%"><input type="text" class="table_input" name="hos_depart" id="hos_depart" style="width: 100px"></td>
+            <td width="10%">处方类型&nbsp;<span class="red">*</span></td>
+            <td width="10%">
+                <select name="prescri_type" id="prescri_type" style="width: 50px">
+                    <option value="">请选择</option>
+                    <option value="0" selected>中药</option>
+                    <option value="1" >西药</option>
+                    <option value="2" >膏方</option>
+                    <option value="3" >免煎颗粒</option>
+                </select>
+            </td>
+            <td width="10%">是否煎煮&nbsp;<span class="red">*</span></td>
+            <td width="10%">
+                <select name="is_suffering" id="is_suffering" lay-filter="sufferCheck" style="width: 120px">
+                    <option value="">请选择</option>
+                    <option value="0" >否</option>
+                    <option value="1" >是</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td width="10%">就诊时间</td>
+            <td width="10%"><input type="text" class="table_input" value="{{ sea_doctor_time }}" name="seaDoctotTime" id="seaDoctotTime" style="width: 130px"></td>
+            <td width="10%">用药途径&nbsp;<span class="red">*</span></td>
+            <td width="10%">
+                <select name="is_within" id="is_within" style="width: 100px">
+                    <option value="">请选择</option>
+                    <option value="0" selected>内服</option>
+                    <option value="1" >外用</option>
+                </select>
+            </td>
+            <td width="10%">剂数&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" class="table_input" name="amount" id="amount" style="width: 120px"></td>
+            <td width="10%">打包袋数(/剂)&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" class="table_input" name="per_pack_num" id="per_pack_num" style="width: 100px"></td>
+        </tr>
+        <tr>
+            <td width="10%">代煎数量&nbsp;<span class="red">*</span></td>
+            <td width="10%"><input type="text" class="table_input" name="suffering_num" id="suffering_num" style="width: 130px"></td>
+            <td width="10%">打包剂量(ml/袋)&nbsp;<span class="red">*</span></td>
+            <td width="10%">
+                <select name="per_pack_dose" id="per_pack_dose" style="width: 100px">
+                    <option value="0">请选择</option>
+                    <option value="100" >100</option>
+                    <option value="150" >150</option>
+                    <option value="200" selected>200</option>
+                </select>
+            </td>
+            <td width="10%">处方源&nbsp;<span class="red">*</span></td>
+            <td colspan="2"><input type="radio" name="is_hos" id="is_hos" value="1" title="门诊" lay-filter="isHosCheck">
+                <input type="radio" name="is_hos" id="is_hos" value="2" title="住院" lay-filter="isHosCheck"></td>
+            <td width="10%"></td>
+        </tr>
+        <tr>
+            <th colspan="8">住院信息</th>
+        </tr>
+        <tr>
+            <td width="10%">住院号</td>
+            <td width="10%"><input type="text" class="table_input" name="hospital_num" id="hospital_num" style="width: 130px"></td>
+            <td width="10%">病区号</td>
+            <td width="10%"><input type="text" name="disease_code" id="disease_code" class="table_input" style="width: 100px"></td>
+            <td width="10%">床位号</td>
+            <td width="10%"><input type="text" name="bed_num" id="bed_num" class="table_input" style="width: 100px"></td>
+            <td width="10%"></td>
+            <td width="10%"></td>
+        </tr>
+        <tr>
+            <td width="10%">用药指导</td>
+            <td colspan="3"><input type="text" class="table_input" name="medication_instruction" id="medication_instruction" style="width: 400px"></td>
+            <td width="10%">处方备注</td>
+            <td colspan="3"><input type="text" class="table_input" name="prescript_remark" id="prescript_remark" style="width: 400px"></td>
+        </tr>
+        <tr>
+            <td width="10%">诊断信息</td>
+            <td colspan="5"><input type="text" class="table_input" name="special_instru" id="special_instru" style="width: 650px"></td>
+            <td></td>
+            <td></td>
+        </tr>
+        </tbody>
+        <tfoot>
+        <tr>
+            <td colspan="8">
+                <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-prescription-back-save">生成处方</button>
+            </td>
+        </tr>
+        </tfoot>
+    </table>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script>
+    function checkdata(data1){
+        if (data1.user_name.length == 0) {
+            layer.msg("患者姓名不能为空！");
+            $("#user_name").focus();
+            return false;
+        }
+        if (data1.age.length == 0){
+            layer.msg("请选择合适的年龄！")
+            $("#age").focus();
+            return false;
+        }
+        if (data1.gender.length == 0) {
+            layer.msg("性别不能为空！");
+            $("#gender").focus();
+            return false;
+        }
+        if (data1.tel.length == 0) {
+            layer.msg("患者联系电话不能为空！");
+            $("#tel").focus();
+            return false;
+        }
+        if (data1.amount　== '') {
+            layer.msg("请输入处方剂数！");
+            $("#amount").focus();
+            return false;
+        }
+        if (data1.per_pack_num　== '') {
+            layer.msg("请输入每剂打包袋数！");
+            $("#per_pack_num").focus();
+            return false;
+        }
+        if (data1.is_suffering　== '') {
+            layer.msg("请确认处方是否煎煮！");
+            $("#is_suffering").focus();
+            return false;
+        }
+        if (data1.suffering_num　== '') {
+            layer.msg("请确认处方煎煮数量！");
+            $("#suffering_num").focus();
+            return false;
+        }
+        if (data1.per_pack_dose　== '') {
+            if (data1.is_suffering != 0){
+                layer.msg("请选择合适的打包剂量！");
+                $("#per_pack_dose").focus();
+                return false;
+            }
+
+        }
+        if (data1.is_hos == undefined){
+            layer.msg("请确认处方来源！门诊？住院？");
+            $("#is_hos").focus();
+            return false;
+        }
+        if (data1.is_hos == 2){
+            if (data1.hos_depart.length == 0){
+                layer.msg("住院处方请输入住院科室及病区号！");
+                $("#hos_depart").focus();
+                return false;
+            }
+            if (data1.bed_num == ''){
+                layer.msg("住院处方请输入床位号！");
+                $("#bed_num").focus();
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+    };
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        window.$ = layui.jquery;
+        var form = layui.form;
+        var table = layui.table;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        window.layer = layui.layer;
+
+
+        layui.$('#suffering_num').on('click', function(){
+            var amount = $("#amount").val();
+            var packNum = $("#per_pack_num").val();
+            var sufferNum = amount * packNum;
+            form.val('presBaseInfo', {
+                "suffering_num": sufferNum
+            });
+            $("#suffering_num").attr("readonly","true");
+            if (sufferNum === 0){
+                if (amount.length === 0){
+                    layer.msg("请输入剂数！");
+                    $("#amount").focus();
+                }else if (packNum.length === 0 ){
+                    layer.msg("请输入打包袋数！");
+                    $("#per_pack_num").focus();
+                }
+            }
+        });
+
+        form.on('select(sufferCheck)', function(data){
+            if(data.value == 0){
+                $("#per_pack_num").val('0');
+                $("#per_pack_num").attr("disabled","true");
+                $("#suffering_num").val('0');
+                $("#suffering_num").attr("disabled","true");
+                form.val('presBaseInfo', {
+                "per_pack_dose": 0
+                });
+                $("#per_pack_dose").attr("disabled","true");
+                form.render('select','input');
+				}else{
+                $("#per_pack_num").removeAttr("disabled");
+                $("#per_pack_num").val('');
+                $("#suffering_num").removeAttr("disabled");
+                $("#suffering_num").val('');
+                $("#per_pack_dose").removeAttr("disabled");
+                form.val('presBaseInfo', {
+                "per_pack_dose": 200
+                });
+                form.render('select','input');
+				}
+			});
+
+        form.on('radio(isHosCheck)', function (data) {
+            if (data.value == '2'){
+                layer.msg("住院处方请完善住院信息！");
+                $("#hos_depart").focus();
+            }
+        });
+
+        //监听保存
+        form.on('submit(LAY-prescription-back-save)', function (data) {
+            var presDatas = form.val("presBaseInfo");   //获取表单值
+            {#console.log(presDatas);#}
+            {#console.log(companyDatas.companyName);#}
+            {#console.log(companyDatas.companyType);#}
+            var status = checkdata(presDatas);
+            {#console.log(status);#}
+            if (status){
+                $.ajax({
+                    url: "{% url 'hospital_client:prescriptionMake' type='firstStep' %}",
+                    data: presDatas,
+                    dataType: "TEXT",
+                    type: "POST",
+                    csrfmiddlewaretoken: '{{ csrf_token  }}',
+                    success: function (res) {
+                        {#console.log(res);#}
+                        var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                        {#console.log(msg);#}
+                        if (msg.status === 'success') {
+                            alert('处方信息添加成功！');
+                            {#console.log(msg.pres_base_info);#}
+                            var url = '{% url 'hospital_client:prescriptionMake' type='secondStep' %}' + '?prescri_id=' + msg.pres_base_info.prescri_id;
+                            var tab_id_new = "prescription_make2";
+                            var tab_id = "prescription_make";
+                            var title = "处方笺";
+                            parent.addTabNew(tab_id_new,url,title,tab_id);
+                        } else {
+                            layer.msg(msg.message);
+                        }
+                        {#reset();#}
+                    }
+                });
+            }
+
+        });
+
+    });
+
+
+</script>
+</body>
+</html>

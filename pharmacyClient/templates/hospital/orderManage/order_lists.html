@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>订单列表</title>
+{#    <link rel="stylesheet" href="{% static 'css/backstage/style.css' %}">#}
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">订单ID:</div>
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input type="text" name="order_id" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">挂单号:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="reg_num" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">患者姓名:</div>
+                            <div class="layui-input-inline" style="width: 80px">
+                                <input type="text" name="user_name" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">收货人姓名:</div>
+                            <div class="layui-input-inline" style="width: 80px">
+                                <input type="text" name="consignee" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">智慧药房订单号:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="zhyf_order_id" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">所属机构:</div>
+                            <div class="layui-input-inline" style="width: 200px">
+                                <select name="company" id="company" lay-search>
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid">订单状态:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <select name="order_status" id="order_status">
+                                    <option value="">请选择</option>
+                                    <option value="0">未推送</option>
+                                    <option value="-1">推送成功</option>
+                                    <option value="1">推送失败</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid">处方类型:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <select name="prescri_type" id="prescri_type">
+                                    <option value="">请选择</option>
+                                    <option value="0">中药</option>
+                                    <option value="1">西药</option>
+                                    <option value="2">膏方</option>
+                                    <option value="3">免煎颗粒</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">下单时间:</div>
+                            <div class="layui-input-inline" style="width: 140px">
+                                <input type="text" class="layui-input laydate-item" autocomplete="off" name="orderTimeStart">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 140px">
+                                <input type="text" name="orderTimeEnd" autocomplete="off" class="layui-input laydate-item">
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-order-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" name="companyIdPassed" value="{{ company_belong.id }}" id="companyIdPassed"/>
+                        </div>
+                    </div>
+                </div>
+                <table id="LAY-order-back-manage" lay-filter="LAY-order-back-manage"></table>
+                <script id="orderStatusTpl" type="text/html">
+                    {% verbatim %}
+                    {{ d.order_status == 0 ? '<span style="color: blue;">未推送</span>' :
+                    d.order_status == -1 ? '<span style="color: green;">推送成功</span>' :
+                    d.order_status >= 1 & d.order_status != 99 ? '<span style="color: red;">推送失败</span>' :
+                    d.order_status == 99 ? '<span style="color: tomato;">取消推送</span>' :'' }}
+                    {% endverbatim %}
+                </script>
+                <script id="presTypeTpl" type="text/html">
+                    {% verbatim %}
+                    {{ d.prescri_type== 0 ? '中药' : d.prescri_type== 1 ? '西药' : d.prescri_type== 2 ? '膏方' : d.prescri_type== 3 ? '免煎颗粒' : '' }}
+                    {% endverbatim %}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+{#<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>#}
+<script>
+    //JavaScript代码区域
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery;
+        var element = layui.element;
+        var form = layui.form;
+        var table = layui.table;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+
+        //时间段
+        lay('.laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'date'
+            });
+        });
+
+        var companyId = $("#companyIdPassed").val();
+        {#console.log(companyId);#}
+        if (Number(companyId) == 1){
+            $.get("{% url 'hospital_client:company' %}", {}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        if (i ===0){
+                            $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                        }else {
+                            $("#company").append("<option value=" + list[i].pk + ">" + list[i].fields.name + "</option>");
+                        }
+                    }
+                }
+                form.render('select');
+            });
+        }else {
+            $.get("{% url 'hospital_client:company' %}", {companyId:companyId}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                    }
+                }
+                form.render('select');
+            });
+        }
+
+        table.render({
+            elem: '#LAY-order-back-manage'
+            , url: '{% url 'hospital_client:tableData' type='order_lists' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {field: 'order_id', title: 'ID', width: 80, align: "center", style: 'cursor: pointer;color:#00c2d3', event: 'viewOrder'}
+                , {field: 'user_name', title: '患者姓名', width: 90, align: 'center'}
+                , {field: 'consignee', title: '收货人姓名', width: 130, align: 'center'}
+                , {field: 'con_tel', title: '收货人电话', width: 130, align: 'center'}
+                , {field: 'addr_str', title: '收货地址', width: 200, align: 'center'}
+                , {field: 'send_goods_time', title: '送货时间', width: 110, align: 'center'}
+                , {field: 'company_id', title: '所属机构', width: 130, align: 'center'}
+                , {field: 'prescri_type', title: '处方类型', width: 90, align: 'center', templet: "#presTypeTpl"}
+                , {field: 'zhyf_order_id', title: '智慧药房订单ID', width: 140}
+                , {field: 'order_status', title: '订单状态', width: 100, templet: "#orderStatusTpl"}
+                , {field: 'push_time', title: '订单推送时间', width: 160, align: 'center'}
+                , {field: 'order_time', title: '订单时间', width: 160, align: 'center'}
+                , {field: 'right', title:'操作', align: 'center'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-order-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            if (field.company == ''){
+                layer.msg("请选择机构！");
+                return;
+            }
+            //执行重载
+            table.reload('LAY-order-back-manage', {
+                where: {
+                    company: field.company,
+                    consignee: field.consignee,
+                    orderId: field.order_id,
+                    orderStatus: field.order_status,
+                    prescriType: field.prescri_type,
+                    regNum: field.reg_num,
+                    userName: field.user_name,
+                    zhyfOrderId: field.zhyf_order_id,
+                    orderTimeEnd: field.orderTimeEnd,
+                    orderTimeStart: field.orderTimeStart,
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        //监听单元格事件
+        table.on('tool(LAY-order-back-manage)', function (obj) {
+            var data = obj.data;
+            {#console.log(data);#}
+            var orderId = data.order_id;
+            var presId = data.pres_num_id;
+            var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + presId + '&order_id=' + orderId;
+            var tab_id_new = "make_order";
+            var tab_id = "make_order";
+            var title = "订单生成";
+            if (obj.event === 'viewOrder') {
+                parent.addTabNew(tab_id_new,url,title,tab_id);
+            }
+        });
+    })
+
+
+</script>
+</body>
+</html>

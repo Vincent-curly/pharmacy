@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>中药房管理平台</title>
+    <link rel="shortcut icon" type="image/x-icon" href="{% static 'img/hospital/favicon.png' %}"/>
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+    <link rel="stylesheet" href="{% static '/layui/css/layui.css' %}">
+    {#    <link rel="stylesheet" href="{% static 'css/backstage/style.css' %}">#}
+</head>
+<body class="layui-layout-body">
+<div class="layui-layout layui-layout-admin">
+    <div class="layui-header">
+        <div class="layui-logo" onclick="Refresh();">中药房医院管理系统</div>
+        <ul class="layui-nav layui-layout-right">
+            <li class="layui-nav-item">
+                <a href="javascript:;">
+                    <i class="iconfont icon-guanliyuan"></i>&nbsp;&nbsp;你好！{{ name }}
+                </a>
+                <input type="hidden" id="login_name" value="{{ name }} ">
+                <dl class="layui-nav-child">
+                    <dd><a href="javascript:void(0)" onclick="updatepass()"><span
+                            class="iconfont icon-icon_password"></span>&nbsp;&nbsp;修改密码</a></dd>
+                    <dd><a href="javascript:void(0)" class="" onclick="dropout()"><span
+                            class="iconfont icon-084tuichu"></span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;退出</a></dd>
+                </dl>
+            </li>
+        </ul>
+    </div>
+    <div class="layui-side layui-bg-black">
+        <div class="layui-side-scroll">
+            <!-- 左侧导航区域（可配合layui已有的垂直导航） -->
+            <ul class="layui-nav layui-nav-tree" lay-shrink="all" lay-filter="management_nav">
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><span class="iconfont icon-xitongguanli2"></span>&nbsp;&nbsp;系统管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a data-url="{% url 'hospital_client:menuManage' type='home' %}" data-id="menu_manage" data-title="菜单管理"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;菜单管理</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:userManage' type='home' %}" data-id="user_manage" data-title="用户管理"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;用户管理</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:roleManage' type='home' %}" data-id="role_manage" data-title="角色管理"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;角色管理</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:companyManage' type='home' %}" data-id="company_manage" data-title="机构来源管理"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;机构管理</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><span class="iconfont icon-chanpinguanli2"></span>&nbsp;&nbsp;数据管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a data-url="{% url 'hospital_client:drugsManage' type='home' %}" data-id="drugs_manage" data-title="药品管理"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;药品管理</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:addDrugs' %}" data-id="add_drugs" data-title="添加药品"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;添加药品</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:batchImportDrugs' %}" data-id="batch_import_drugs" data-title="药材批量导入"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;药材批量导入</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><span class="iconfont icon-jiaoyiguanli"></span>&nbsp;&nbsp;订单管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a data-url="{% url 'hospital_client:prescriptionMake' type='firstStep' %}" data-id="prescription_make" data-title="处方笺"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;处方笺</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:orderListQuery' type='home' %}" data-id="order_lists_query" data-title="订单列表查询"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;订单列表查询</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:prescriptionQuery' %}" data-id="prescription_query" data-title="处方查询"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;处方查询</a></dd>
+                    </dl>
+                </li>
+                <li class="layui-nav-item">
+                    <a href="javascript:;"><span class="iconfont icon-jiesuantongjibiao"></span>&nbsp;&nbsp;报表管理</a>
+                    <dl class="layui-nav-child">
+                        <dd><a data-url="{% url 'hospital_client:statementsManage' type='reconciliation' %}" data-id="reconciliation" data-title="医院对账处方清单"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;医院对账处方清单</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:statementsManage' type='presSalesCount' %}" data-id="pres_sales_count" data-title="处方销售统计报表"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;处方销售统计报表</a></dd>
+                        <dd><a data-url="{% url 'hospital_client:statementsManage' type='drugsSalesCount' %}" data-id="drugs_sales_count" data-title="药材销售统计报表"
+                               class="nav-active" href="javascript:;" data-type="tabAdd">&nbsp;&nbsp;&nbsp;<span class="iconfont icon-node-tree1"></span>&nbsp;&nbsp;药材销售统计报表</a></dd>
+                    </dl>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="layui-body">
+        <!-- 内容主体区域 -->
+        <div class="layui-tab" lay-allowClose="true" lay-filter="management_tab">
+            <ul class="layui-tab-title">
+                <li class="layui-this" lay-id="home">Home</li>
+            </ul>
+            <div class="layui-tab-content">
+                <div class="layui-tab-item layui-show">
+                    <iframe src="{% url 'hospital_client:home' %}" frameborder="0" class="layui-iframe"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/hospital/jQuery.md5.js' %}"></script>
+<script>
+    //JavaScript代码区域
+
+    //md5
+    function md5_code(data) {
+        return $.md5(data)
+    }
+
+    //修改密码
+    function updatepass() {
+        layui.use(['element', 'layer', 'table'], function () {
+            var element = layui.element;
+            var layer = layui.layer;
+            var $ = layui.jquery;
+            var table = layui.table;
+            layer.open({
+                type: 2
+                , title: '修改密码'
+                , content: '{% url 'hospital_client:updatePass' %}'
+                , area: ['420px', '250px']
+                , btn: ['保存', '取消']
+                , btnAlign: 'c'
+                , yes: function (index) {
+                    var body = layer.getChildFrame('body', index); //得到iframe页的body内容
+                    var formdata = {
+                        uName: $("#login_name").val(),
+                        prePassword: md5_code(body.find("#pre_password").val()),
+                        newPassword: md5_code(body.find("#new_password").val()),
+                    };
+                    {#console.log(formdata);#}
+                    $.ajax({
+                        url: "{% url 'hospital_client:updatePass' %}",
+                        data: formdata,
+                        dataType: "TEXT",
+                        type: "POST",
+                        csrfmiddlewaretoken: '{{ csrf_token  }}',
+                        success: function (res) {
+                            {#console.log(typeof res);#}
+                            {#console.log(res);#}
+                            var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                            {#console.log(typeof msg);#}
+                            {#console.log(msg);#}
+                            if (msg.status === 'success') {
+                                alert("用户: 【" + formdata['uName'] + "】密码修改成功！")
+                            } else {
+                                alert("用户: 【" + formdata['uName'] + "】 密码修改失败！\n原因：" + msg.message)
+                            }
+                            setTimeout(function () {
+                                layer.close(index);     //关闭弹层
+                            }, 600);
+                        }
+                    });
+                }
+            });
+        });
+    }
+
+
+    //退出系统
+    function dropout() {
+        layui.use('layer', function () {
+            var layer = layui.layer;
+            layer.confirm('是否确定退出系统？', {
+                    btn: ['是', '否'],
+                    icon: 1,
+                },
+                function () {
+                    location.href = "{% url 'hospital_client:logout' %}";
+                });
+        });
+    }
+
+    layui.use('element', function () {
+        var element = layui.element;
+        var $ = layui.jquery;
+        //在这里给active绑定几项事件，后面可通过active调用这些事件,
+        window.active = {
+            tabAdd: function (url, tab_id, tab_title) {
+                //新增一个Tab项 传入三个参数，分别对应其标题，tab页面的地址，还有一个规定的tab_id，是标签中data-id的属性值
+                element.tabAdd('management_tab', {
+                    title: tab_title,
+                    content: '<iframe data-frameid="' + tab_id + '" scrolling="auto" frameborder="0" src="' + url + '" style="width:100%;min-height: 660px;"></iframe>',
+                    id: tab_id
+                })
+                element.render('tab');
+            },
+            tabChange: function (tab_id) {
+                //根据传入的id传入到指定的tab项
+                element.tabChange('management_tab', tab_id);
+            },
+            tabDelete: function (tab_id) {
+                element.tabDelete("management_tab", tab_id);
+            },
+            tabDeleteAll: function (tab_ids) {
+                $.each(tab_ids, function (i, item) {
+                    element.tabDelete("management_tab", item);
+                })
+            },
+        };
+
+        //监听选项卡切换
+        element.on('tab(management_tab)', function (data) {
+            {#console.log(this); //当前Tab标题所在的原始DOM元素#}
+            {#console.log(data.index); //得到当前Tab的所在下标#}
+            {#console.log(data.elem); //得到当前的Tab大容器#}
+        });
+
+        //当点击有nav-active属性的标签时，即左侧菜单栏中内容 ，触发点击事件
+        $('.nav-active').on('click', function (data) {
+            var dataid = $(this);
+            {#console.log(dataid.attr("data-url"));#}
+            if ($(".layui-tab-title li[lay-id=" + dataid.attr("data-id") + "]").length > 0) {
+                active.tabChange(dataid.attr("data-id"));
+            } else {
+                active.tabAdd(dataid.attr("data-url"), dataid.attr("data-id"), dataid.attr("data-title"));
+            }
+            active.tabChange(dataid.attr("data-id"));  //切换到新增的tab上
+        });
+
+    })
+
+    //给goods_manage调用，在主页的tab选项卡上打开商品添加页面
+    function addTabNew(tab_id, url, title, closed_tab_id) {
+        {#console.log(tab_id);#}
+        if (closed_tab_id){
+            active.tabDelete(closed_tab_id);
+        }
+        if ($(".layui-tab-title li[lay-id=" + tab_id + "]").length > 0) {
+            active.tabDelete(tab_id);
+            active.tabAdd(url, tab_id, title);
+            active.tabChange(tab_id);  //切换到新增的tab上
+        } else {
+            active.tabAdd(url, tab_id, title);
+            active.tabChange(tab_id);  //切换到
+        }
+    };
+
+
+
+</script>
+
+</body>
+</html>

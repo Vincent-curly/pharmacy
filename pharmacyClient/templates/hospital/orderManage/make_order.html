@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>处方生成订单</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<table class="layui-table details_table1" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr>
+        <th colspan="8">订单信息</th>
+    </tr>
+    </thead>
+    <tbody class="layui-form">
+    <input type="hidden" class="table_input" value="{{ order.order_id }}" name="order_id" id="order_id">
+    <tr>
+        <td width="10%">订单ID</td>
+        <td width="15%">{{ order.order_id }}</td>
+        <td width="10%">机构名称</td>
+        <td width="10%">{{ company_name }}</td>
+        <td width="10%">创建人</td>
+        <td width="10%">{{ order.creat_man }}</td>
+        <td width="10%">订单时间</td>
+        <td width="10%">{{ order.order_time }}</td>
+    </tr>
+    <tr>
+        <td width="10%">挂单号</td>
+        <td width="15%">{{ order.reg_num }}</td>
+        <td width="10%">订单状态</td>
+        {% if order.order_status == 0 %}
+            <td width="10%" style="color: red">未推送</td>
+        {% elif order.order_status == -1 %}
+            <td width="10%" style="color: red">推送成功</td>
+        {% elif order.order_status == 99 %}
+            <td width="10%" style="color: red">取消推送</td>
+        {% elif order.order_status > 0 %}
+            <td width="10%" style="color: red">推送失败</td>
+        {% endif %}
+        <td width="10%">推送时间</td>
+        {% if order.order_status == 0 %}
+            <td width="10%"></td>
+        {% else %}
+            <td width="10%">{{ order.push_time }}</td>
+        {% endif %}
+        <td width="10%">最后更新人</td>
+        {% if order.update_man %}
+            <td width="10%">{{ order.update_man }}</td>
+        {% else %}
+            <td width="10%"></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td width="10%">最后更新时间</td>
+        {% if order.update_man %}
+            <td width="15%">{{ order.update_time }}</td>
+        {% else %}
+            <td width="15%"></td>
+        {% endif %}
+        <td width="10%">收货人</td>
+        {% if order.consignee %}
+            <td width="10%"><b>{{ order.consignee }}</b></td>
+        {% else %}
+            <td width="10%"><b></b></td>
+        {% endif %}
+        <td width="10%">收货人电话</td>
+        {% if order.con_tel %}
+            <td width="10%"><b>{{ order.con_tel }}</b></td>
+        {% else %}
+            <td width="10%"><b></b></td>
+        {% endif %}
+        <td width="10%">智慧药房订单号</td>
+        {% if order.zhyf_order_id %}
+            <td width="10%">{{ order.zhyf_order_id }}</td>
+        {% else %}
+            <td width="10%"></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td width="10%">送货时间</td>
+        {% if order.send_goods_time %}
+            <td width="15%">{{ order.send_goods_time }}</td>
+        {% else %}
+            <td width="15%"></td>
+        {% endif %}
+        <td width="10%">送货方式</td>
+        {% if order.is_hos_addr == 0 %}
+            <td width="10%">未知</td>
+        {% elif order.is_hos_addr == 1 %}
+            <td width="10%">送医院</td>
+        {% else %}
+            <td width="10%">送个人</td>
+        {% endif %}
+        <td width="10%">订单结算总金额</td>
+        <td width="10%" style="color: firebrick">{{ order.order_price_totle }}</td>
+        <td width="10%">订单销售总金额</td>
+        <td width="10%" style="color: firebrick">{{ order.order_sale_price_totle }}</td>
+    </tr>
+    <tr>
+        <td width="10%">送货地址</td>
+        {% if order.addr_str %}
+            <td colspan="6"><b>{{ send_goods_addr }}</b></td>
+            {% if order.order_status == -1 %}
+                <td width="10%">
+                    <button class="layui-btn layuiadmin-btn-admin" disabled data-type="editddress">
+                        <i class="iconfont icon-bianji2"></i>&nbsp;&nbsp;修改收货信息
+                    </button>
+                </td>
+            {% else %}
+                <td width="10%">
+                    <button class="layui-btn layuiadmin-btn-admin" data-type="editddress">
+                        <i class="iconfont icon-bianji2"></i>&nbsp;&nbsp;修改收货信息
+                    </button>
+                </td>
+            {% endif %}
+        {% else %}
+            <td colspan="6"></td>
+            <td width="10%">
+                <button class="layui-btn layuiadmin-btn-admin" data-type="addAddress">
+                <i class="iconfont icon-tianjia"></i>&nbsp;&nbsp;添加收货信息
+            </button></td>
+        {% endif %}
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="8">
+            {% if order.order_status == -1 %}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="cancelOrder">
+                    <i class="iconfont icon-quxiao"></i>&nbsp;&nbsp;取消订单
+                </button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="printPrescription">
+                    <i class="iconfont icon-dayin1"></i>&nbsp;&nbsp;打印处方单
+                </button>
+            {% elif order.order_status == 99 %}
+                <button class="layui-btn layuiadmin-btn-admin" disabled data-type="cancelOrder">
+                    <i class="iconfont icon-quxiao"></i>&nbsp;&nbsp;取消订单
+                </button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="printPrescription">
+                    <i class="iconfont icon-dayin1"></i>&nbsp;&nbsp;打印处方单
+                </button>
+            {% else %}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="saveOrder">
+                    <i class="iconfont icon-icon"></i>&nbsp;&nbsp;保存订单
+                </button>
+{#                <button class="layui-btn layuiadmin-btn-admin" data-type="giveUpOrder">#}
+{#                    <i class="iconfont icon-icon_function_fangqi"></i>&nbsp;&nbsp;废弃订单#}
+{#                </button>#}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="printPrescription">
+                    <i class="iconfont icon-dayin1"></i>&nbsp;&nbsp;打印处方单
+                </button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="reEditDrugs">
+                    <i class="iconfont icon-bianji2"></i>&nbsp;&nbsp;重新编辑药品
+                </button>
+            {% endif %}
+        </td>
+    </tr>
+    </tfoot>
+</table>
+<table class="layui-table details_table1" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr>
+        <th colspan="8">处方信息</th>
+    </tr>
+    </thead>
+    <tbody class="layui-form" lay-filter="presInfo">
+    <input type="hidden" class="table_input" value="{{ prescri_id }}" name="pres_id" id="pres_id">
+    <tr>
+        <td width="10%">处方号</td>
+        <td width="10%">{{ prescription.prescri_id }}</td>
+        <td width="10%">诊疗卡号</td>
+        <td width="10%">{{ prescription.treat_card_id }}</td>
+        <td width="10%">姓名</td>
+        <td width="10%">{{ prescription.user_name }}</td>
+        <td width="10%">年龄</td>
+        <td width="15%">{{ prescription.age }}</td>
+    </tr>
+    <tr>
+        <td width="10%">性别</td>
+        {% if prescription.gender == 0 %}
+            <td width="10%">女</td>
+        {% else %}
+            <td width="10%">男</td>
+        {% endif %}
+        <td width="10%">联系手机</td>
+        <td width="10%">{{ prescription.tel }}</td>
+        <td width="10%">医生姓名</td>
+        <td width="10%">{{ prescription.doctor }}</td>
+        <td width="10%">科室名称</td>
+        <td width="15%">{{ prescription.hos_depart }}</td>
+    </tr>
+    <tr>
+        <td width="10%">处方类型</td>
+        {% if prescription.prescri_type == 0 %}
+            <td width="10%">中药</td>
+        {% elif prescription.prescri_type == 1 %}
+            <td width="10%">西药</td>
+        {% elif prescription.prescri_type == 2 %}
+            <td width="10%">膏方</td>
+        {% else %}
+            <td width="10%">免煎颗粒</td>
+        {% endif %}
+        <td width="10%">是否煎煮</td>
+        {% if order.order_status == -1 %}
+            {% if prescription.is_suffering == 1 %}
+                <td width="10%" style="color: red">是</td>
+            {% else %}
+                <td width="10%" style="color: red">否</td>
+            {% endif %}
+        {% else %}
+            <td width="10%"><select name="is_suffering" id="is_suffering" lay-filter="sufferCheck">
+                <option value="" style="color: red">请选择</option>
+                <option value="0" style="color: red">否</option>
+                <option value="1" style="color: red">是</option>
+            </select></td>
+            <input type="hidden" class="table_input" value="{{ prescription.is_suffering }}" name="passedIsSuffering" id="passedIsSuffering">
+        {% endif %}
+        <td width="10%">用药途径</td>
+        {% if prescription.is_within == 0 %}
+            <td width="10%">内服</td>
+        {% else %}
+            <td width="10%">外用</td>
+        {% endif %}
+        <td width="10%">就诊时间</td>
+        <td width="15%">{{ prescription.sea_doctor_time }}</td>
+    </tr>
+    <tr>
+        <td width="10%">剂数</td>
+        {% if order.order_status == -1 %}
+            <td width="10%" style="color: red">{{ prescription.amount }}</td>
+            <td width="10%">打包袋数(袋/剂)</td>
+            <td width="10%">{{ prescription.per_pack_num }}</td>
+        {% else %}
+            <td width="10%"><input type="text" class="table_input" value="{{ prescription.amount }}" name="amount" id="amount" style="width: 120px;color: red"></td>
+            <td width="10%">打包袋数(袋/剂)</td>
+            <td width="10%"><input type="text" class="table_input" value="{{ prescription.per_pack_num }}" name="per_pack_num" id="per_pack_num" style="width: 120px"></td>
+        {% endif %}
+        <td width="10%">代煎数量(袋)</td>
+        <td width="10%" style="color: red">{{ prescription.suffering_num }}</td>
+        <td width="10%">打包剂量(ml/袋)</td>
+        <td width="15%">{{ prescription.per_pack_dose }}</td>
+    </tr>
+    <tr>
+        <td width="10%">处方源</td>
+        {% if prescription.is_hos == 1 %}
+            <td width="10%">门诊</td>
+        {% else %}
+            <td width="10%">住院</td>
+        {% endif %}
+        <td width="10%">住院号</td>
+        <td width="10%">{{ prescription.hospital_num }}</td>
+        <td width="10%">病区号</td>
+        <td width="10%">{{ prescription.disease_code }}</td>
+        <td width="10%">床位号</td>
+        <td width="15%">{{ prescription.bed_num }}</td>
+    </tr>
+    <tr>
+        <td width="10%">用药指导</td>
+        <td width="10%" colspan="3">{{ prescription.medication_instruction }}</td>
+        <td width="10%">处方备注</td>
+        {% if order.order_status == -1 %}
+            <td width="10%" colspan="3">{{ prescription.prescript_remark }}</td>
+        {% else %}
+            <td width="10%" colspan="3"><input type="text" class="table_input" name="prescript_remark" value="{{ prescription.prescript_remark }}" id="prescript_remark" style="width: 400px"></td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td width="10%">诊断信息</td>
+        <td colspan="5">{{ prescription.special_instru }}</td>
+        <td width="10%">煎煮费</td>
+        <td width="10%">{{ prescription.suffering_price }}</td>
+    </tr>
+    <tr>
+        <td width="10%">处方结算总价</td>
+        <td width="10%" style="color: firebrick">{{ prescription.pres_price_totle }}</td>
+        <td width="10%">处方销售总价</td>
+        <td width="10%" style="color: firebrick">{{ prescription.pres_sale_price_totle }}</td>
+        <td width="10%">药品结算总价</td>
+        <td width="10%" style="color: firebrick">{{ prescription.drug_price }}</td>
+        <td width="10%">药品销售总价</td>
+        <td width="10%" style="color: firebrick">{{ prescription.drug_sale_price }}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="8">
+            {% if order.order_status == -1 %}
+                <button class="layui-btn layuiadmin-btn-admin" disabled data-type="confirmModifyPrescription">
+                    <i class="iconfont icon-bianji2"></i>&nbsp;&nbsp;确认修改处方
+                </button>
+            {% else %}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="confirmModifyPrescription">
+                    <i class="iconfont icon-bianji2"></i>&nbsp;&nbsp;确认修改处方
+                </button>
+            {% endif %}
+        </td>
+    </tr>
+    </tfoot>
+</table>
+<table id="LAY-drug-manage" lay-filter="LAY-drug-manage"></table>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script>
+    function checkdata(data1){
+        if (data1.amount　== '') {
+            layer.msg("请输入处方剂数！");
+            $("#amount").focus();
+            return false;
+        }
+        if (data1.per_pack_num　== '') {
+            layer.msg("请输入每剂打包袋数！");
+            $("#per_pack_num").focus();
+            return false;
+        }
+        if (data1.is_suffering　== '') {
+            layer.msg("请确认处方是否煎煮！");
+            $("#is_suffering").focus();
+            return false;
+        }
+        if (data1.is_suffering == 1){
+            if (data1.per_pack_num == 0 || data1.per_pack_num == ''){
+                layer.msg("请输入每剂打包袋数！");
+                $("#per_pack_num").focus();
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+        else {
+            return true;
+        }
+    };
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        window.$ = layui.jquery;
+        window.form = layui.form;
+        var table = layui.table;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        window.layer = layui.layer;
+        var prescriId = $("#pres_id").val();
+
+        form.val('presInfo', {
+            "is_suffering": $("#passedIsSuffering").val()
+        });
+        form.render('select');
+
+        form.on('select(sufferCheck)', function(data){
+            if(data.value == 0){
+                $("#per_pack_num").val('0');
+                $("#per_pack_num").attr("disabled","true");
+				}else{
+                $("#per_pack_num").removeAttr("disabled");
+                $("#per_pack_num").val('');
+				}
+			});
+
+        table.render({
+            elem: '#LAY-drug-manage'
+            , url: '{% url 'hospital_client:tableData' type='drugs_table' %}' + '?prescri_id=' + prescriId
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {field: 'medicines', title: '药材名称', width:90,align:'center'}
+                , {field: 'drugs_num', title: '药材编码', width:90,align: 'center'}
+                , {field: 'dose', title: '剂量', align: 'center', width: 60}
+                , {field: 'unit', title: '单位', width: 60, align: 'center'}
+                , {field: 'm_usage', title: '用法', align: 'center',width:90}
+                , {field: 'remark', title: '备注',width:90, align: 'center'}
+                , {field: 'unit_price', title: '结算单价', align: 'center',width:90}
+                , {field: 'unit_price_totle', title: '结算总价',width:90, align: 'center', style: 'cursor: pointer;color:red'}
+                , {field: 'sale_price', title: '销售单价',width:90, align: 'center'}
+                , {field: 'sale_price_totle', title: '销售总价', align: 'center',width:90, style: 'cursor: pointer;color:red'}
+                ]]
+        });
+
+        //事件
+        var active = {
+            reEditDrugs: function () {
+                var url = '{% url 'hospital_client:prescriptionMake' type='secondStep' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                {#var tab_id_new = "prescription_make2";#}
+                var tab_id_new = "make_order";
+                var tab_id = "make_order";
+                var title = "处方笺";
+                parent.addTabNew(tab_id_new,url,title,tab_id);
+            }
+            , saveOrder: function () {
+                $.get("{% url 'hospital_client:saveOrder' %}", {orderId:$("#order_id").val(),presId:$("#pres_id").val()},function (res) {
+                    {#var response = JSON.parse(res);#}
+                    {#console.log(res);#}
+                    if (res.status == 'success'){
+                        alert("订单: 【" + $("#order_id").val() + "】保存成功！");
+                        var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                        var tab_id_new = "make_order";
+                        var tab_id = "make_order";
+                        var title = "订单生成";
+                        parent.addTabNew(tab_id_new,url,title,tab_id);
+                    }else {
+                        alert("订单: 【" + $("#order_id").val() + "】保存失败！原因：" + res.message);
+                        var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                        var tab_id_new = "make_order";
+                        var tab_id = "make_order";
+                        var title = "订单生成";
+                        parent.addTabNew(tab_id_new,url,title,tab_id);
+                    }
+                });
+            }
+            , addAddress: function () {
+                var orderId = $("#order_id").val();
+                {#console.log(orderId);#}
+                layer.open({
+                    type: 2
+                    , title: '订单收货信息添加'
+                    , content: '{% url 'hospital_client:makeOrder' type='addOrderAddress' %}'
+                    , area: ['750px', '500px']
+                    , btn: ['保存', '取消']
+                    , btnAlign: 'c'
+                    , yes:function (index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        var Data = iframe.callbackdata(index);
+                        Data.order_id = orderId;
+                        {#console.log(Data);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:makeOrder' type='addOrderAddress' %}",
+                            data: Data,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    alert("订单: 【" + orderId + "】收货信息添加成功！");
+                                    var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                                    var tab_id_new = "make_order";
+                                    var tab_id = "make_order";
+                                    var title = "订单生成";
+                                    parent.addTabNew(tab_id_new,url,title,tab_id);
+                                } else {
+                                    alert("订单: 【" + orderId + "】 收货信息添加失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);
+                                    }, 600);
+                            }
+                        });
+                    }
+                });
+            }
+            , editddress: function () {
+                var orderId = $("#order_id").val();
+                {#console.log(orderId);#}
+                layer.open({
+                    type: 2
+                    , title: '订单收货信息添加'
+                    , content: '{% url 'hospital_client:makeOrder' type='addOrderAddress' %}' + '?order_id=' + orderId
+                    , area: ['750px', '500px']
+                    , btn: ['保存', '取消']
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];  //获取子页面的iframe
+                        iframe.child(index);
+                    }
+                    , yes:function (index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        var Data = iframe.callbackdata(index);
+                        Data.order_id = orderId;
+                        {#console.log(Data);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:makeOrder' type='addOrderAddress' %}",
+                            data: Data,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    alert("订单: 【" + orderId + "】收货信息修改成功！");
+                                    var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                                    var tab_id_new = "make_order";
+                                    var tab_id = "make_order";
+                                    var title = "订单生成";
+                                    parent.addTabNew(tab_id_new,url,title,tab_id);
+                                } else {
+                                    alert("订单: 【" + orderId + "】 收货信息修改失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);
+                                    }, 600);
+                            }
+                        });
+                    }
+                });
+            }
+            , confirmModifyPrescription: function () {
+                var presDatas = form.val("presInfo");   //获取表单值
+                {#console.log(presDatas);#}
+                var status = checkdata(presDatas);
+                {#console.log(status);#}
+                if (status){
+                    layer.confirm('确定修改处方信息吗？', function (index) {
+                    $.ajax({
+                        url: "{% url 'hospital_client:makeOrder' type='modifyPrescription' %}",
+                        data: presDatas,
+                        dataType: "TEXT",
+                        type: "POST",
+                        csrfmiddlewaretoken: '{{ csrf_token  }}',
+                        success: function (res) {
+                            var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                            if (msg.status === 'success') {
+                                alert('处方号：[' + presDatas.pres_id + ']修改成功！');
+                                var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                                {#var tab_id_new = "make_order1";#}
+                                var tab_id_new = "make_order";
+                                var tab_id = "make_order";
+                                var title = "订单生成";
+                                parent.addTabNew(tab_id_new,url,title,tab_id);
+                            } else {
+                                alert("处方信息修改失败！\n原因：" + res.message);
+                            }
+                            setTimeout(function () {
+                                layer.close(index);     //关闭弹层
+                            }, 600);
+                        }
+                    });
+                });
+                }
+            }
+            , printPrescription: function () {
+                var url = "{% url 'hospital_client:printPrescription' type='home' %}" + "?orderId=" + $("#order_id").val() + "&presId=" + $("#pres_id").val();
+                window.open(url);
+            }
+            , cancelOrder: function () {
+                $.get("{% url 'hospital_client:cancelOrder' %}", {orderId:$("#order_id").val(),presId:$("#pres_id").val()}, function (res) {
+                    if (res.status =='success'){
+                        alert('订单号:' + $("#order_id").val() + '取消成功！');
+                        var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() + '&order_id=' + $("#order_id").val();
+                        var tab_id_new = "make_order";
+                        var tab_id = "make_order";
+                        var title = "订单生成";
+                        parent.addTabNew(tab_id_new,url,title,tab_id);
+                    }else {
+                        alert('订单号:' + $("#order_id").val() + '取消失败！原因：' + res.message);
+                    }
+                })
+            }
+        };
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>
+</body>
+</html>

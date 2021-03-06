@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>处方添加药材</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<table class="layui-table details_table1" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr>
+        <th colspan="8"><p style="float: left;color: firebrick"><b>诊疗卡号：［{{ pres_info.treat_card_id }}］</b></p>处方基本信息<p style="float: right;color: firebrick"><b>处方号：［{{ pres_info.prescri_id }}］</b></p></th>
+    </tr>
+    </thead>
+    <tbody class="layui-form">
+    <input type="hidden" class="table_input" value="{{ pres_info.prescri_id }}" name="pres_id" id="pres_id">
+    <input type="hidden" class="table_input" value="{{ order_id }}" name="order_id" id="order_id">
+    <tr>
+        <td width="15%">姓名</td>
+        <td width="15%">{{ pres_info.user_name }}</td>
+        <td width="17%">年龄</td>
+        <td width="10%">{{ pres_info.age }}</td>
+        <td width="10%">性别</td>
+        {% if pres_info.gender == 0 %}
+            <td width="10%">女</td>
+        {% else %}
+            <td width="10%">男</td>
+        {% endif %}
+        <td width="10%">联系手机</td>
+        <td width="10%">{{ pres_info.tel }}</td>
+    </tr>
+    <tr>
+        <td width="15%">医生姓名</td>
+        <td width="15%">{{ pres_info.doctor }}</td>
+        <td width="17%">科室名称</td>
+        <td width="10%">{{ pres_info.hos_depart }}</td>
+        <td width="10%">处方类型</td>
+        {% if pres_info.prescri_type == 0 %}
+            <td width="10%">中药</td>
+        {% elif pres_info.prescri_type == 1 %}
+            <td width="10%">西药</td>
+        {% elif pres_info.prescri_type == 2 %}
+            <td width="10%">膏方</td>
+        {% else %}
+            <td width="10%">免煎颗粒</td>
+        {% endif %}
+        <td width="10%" style="color: red">是否煎煮</td>
+        {% if pres_info.is_suffering == 1 %}
+            <td width="10%">是</td>
+        {% else %}
+            <td width="10%">否</td>
+        {% endif %}
+    </tr>
+    <tr>
+        <td width="15%">就诊时间</td>
+        <td width="15%">{{ pres_info.sea_doctor_time }}</td>
+        <td width="17%">用药途径</td>
+        {% if pres_info.is_within == 0 %}
+            <td width="10%">内服</td>
+        {% else %}
+            <td width="10%">外用</td>
+        {% endif %}
+        <td width="10%">剂数</td>
+        <td width="10%">{{ pres_info.amount }}</td>
+        <td width="10%">打包袋数(袋/剂)</td>
+        <td width="10%">{{ pres_info.per_pack_num }}</td>
+    </tr>
+    <tr>
+        <td width="15%">代煎数量(袋)</td>
+        <td width="15%">{{ pres_info.suffering_num }}</td>
+        <td width="17%">打包剂量(ml/袋)</td>
+        <td width="10%">{{ pres_info.per_pack_dose }}</td>
+        <td width="10%">处方源</td>
+        {% if pres_info.is_hos == 1 %}
+            <td width="10%">门诊</td>
+        {% else %}
+            <td width="10%">住院</td>
+        {% endif %}
+        <td width="10%">住院号</td>
+        <td width="10%">{{ pres_info.hospital_num }}</td>
+    </tr>
+    <tr>
+        <td width="15%">病区号</td>
+        <td width="15%">{{ pres_info.disease_code }}</td>
+        <td width="17%">床位号</td>
+        <td width="10%">{{ pres_info.bed_num }}</td>
+        <td width="10%">用药指导</td>
+        <td width="10%" colspan="3">{{ pres_info.medication_instruction }}</td>
+    </tr>
+    <tr>
+        <td width="15%">处方备注</td>
+        <td colspan="3">{{ pres_info.prescript_remark }}</td>
+        <td width="10%">诊断信息</td>
+        <td colspan="3">{{ pres_info.special_instru }}</td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="8">
+            {% if pres_info.is_order >= 1 and pres_info.order_status == -1 %}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="reOrder">
+                    <i class="iconfont icon-jiaoyiguanliicon"></i>&nbsp;&nbsp;重复开单
+                </button>
+            {% else %}
+                <button class="layui-btn layuiadmin-btn-admin" data-type="addDrugs">
+                    <i class="iconfont icon-tianjia"></i>&nbsp;&nbsp;添加药品
+                </button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="delDrugs">
+                    <i class="iconfont icon-shanchu"></i>&nbsp;&nbsp;删除药品
+                </button>
+                <button class="layui-btn layuiadmin-btn-admin" data-type="makeOrder">
+                    <i class="iconfont icon-jiaoyiguanliicon"></i>&nbsp;&nbsp;生成订单
+                </button>
+            {% endif %}
+        </td>
+    </tr>
+    </tfoot>
+</table>
+<table id="LAY-drug-manage" lay-filter="LAY-drug-manage"></table>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script>
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        window.$ = layui.jquery;
+        window.form = layui.form;
+        var table = layui.table;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        window.layer = layui.layer;
+
+        table.render({
+            elem: '#LAY-drug-manage'
+            , url: '{% url 'hospital_client:tableData' type='drugs_table' %}' + '?prescri_id=' + $("#pres_id").val()
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {checkbox: true, fixed: true}
+                , {field: 'medicines', title: '药材名称', width:90,align:'center'}
+                , {field: 'drugs_num', title: '药材编码', width:90,align: 'center'}
+                , {field: 'dose', title: '剂量', align: 'center', width: 60, edit:'text'}
+                , {field: 'unit', title: '单位', width: 60, align: 'center'}
+                , {field: 'm_usage', title: '用法', align: 'center',width:90}
+                , {field: 'remark', title: '备注',width:90, align: 'center', edit: 'text'}
+                , {field: 'unit_price', title: '结算单价', align: 'center',width:90}
+                , {field: 'unit_price_totle', title: '结算总价',width:90, align: 'center'}
+                , {field: 'sale_price', title: '销售单价',width:90, align: 'center'}
+                , {field: 'sale_price_totle', title: '销售总价', align: 'center',width:90}
+                ]]
+        });
+
+        //监听单元格编辑
+        table.on('edit(LAY-drug-manage)', function(obj){
+            var value = obj.value //得到修改后的值
+            ,data = obj.data //得到所在行所有键值
+            ,field = obj.field; //得到字段
+            {#console.log(data);#}
+            {#console.log(field);#}
+            $.get("{% url 'hospital_client:prescriptionMake' type='editDoseRemark' %}", {drugsId:data.id,modified:field,newValue:value,pres_num:$("#pres_id").val()}, function (res) {
+                if (res.status === 'success'){
+                    alert('药品：[' + data.medicines + ']的' + field + ' 字段成功更改为：'+ value + '!')
+                    table.reload('LAY-drug-manage');
+                }else {
+                    alert("信息修改失败！\n原因：" + res.message)
+                }
+            });
+        });
+
+
+        //事件
+        var active = {
+            delDrugs: function () {
+                var checkStatus = table.checkStatus('LAY-drug-manage')
+                    , checkData = checkStatus.data; //得到选中的数据
+                {#console.log(checkData);#}
+                if (checkData.length === 0) {
+                    return layer.msg('请选择数据');
+                }
+                layer.confirm('确定删除吗？', function (index) {
+                    var d = [];
+                    for (var i = 0; i < checkData.length; i++) {
+                        d.push(checkData[i].id);
+                    }
+                    $.ajax({
+                        url: "{% url 'hospital_client:prescriptionMake' type='drugDelete' %}",
+                        data: {'delData': JSON.stringify(d)},
+                        type: 'POST',
+                        dataType: 'TEXT',
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        success: function (res) {
+                            var msg = eval("(" + res + ")");
+                            if (msg.status === 'success') {
+                                table.reload('LAY-drug-manage'); //数据刷新，静态更新表格中的数据
+                                layer.msg('已删除');
+                            } else {
+                                layer.msg('删除失败！原因：' + msg.message);
+                            }
+                            setTimeout(function () {
+                                layer.close(index);     //关闭弹层
+                            }, 600);
+                        }
+                    });
+
+                });
+            }
+            , addDrugs: function () {
+                var presId = $("#pres_id").val();
+                console.log(presId);
+                layer.open({
+                    type: 2
+                    , title: '处方药品添加'
+                    , content: '{% url 'hospital_client:prescriptionMake' type='addPrescriptionDrugs' %}' + '?prescri_id=' + presId
+                    , area: ['800px', '400px']
+                    , btn: ['确定', '取消']
+                    , btnAlign: 'c'
+                    , yes:function (index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        var Data = iframe.callbackdata(index);
+                        {#console.log(Data);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:prescriptionMake' type='secondStep' %}",
+                            data: Data,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                {#console.log(typeof res);#}
+                                {#console.log(res);#}
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                {#console.log(typeof msg);#}
+                                {#console.log(msg);#}
+                                if (msg.status === 'success') {
+                                    table.reload('LAY-drug-manage'); //数据刷新，静态更新表格中的数据
+                                    alert("药品: 【" + Data.medicines + "】添加成功！")
+                                    iframe.reset(index);
+                                } else {
+                                    alert("药品: 【" + Data.medicines + "】 添加失败！\n原因：" + msg.message)
+                                    iframe.reset(index);
+                                }
+                            }
+                        });
+                    }
+                });
+            }
+            , makeOrder: function () {
+                var orderId = $("#order_id").val();
+                {#console.log('orderId=');#}
+                {#console.log(orderId);#}
+                {#console.log('prescri_id=');#}
+                {#console.log($("#pres_id").val());#}
+                if (orderId === 'None'){
+                    var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val();
+                }else {
+                    var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + $("#pres_id").val() +'&order_id=' + orderId;
+                }
+                var tab_id_new = "make_order";
+                var tab_id = "prescription_make2";
+                var title = "订单生成";
+                parent.addTabNew(tab_id_new,url,title,tab_id);
+            }
+            , reOrder: function () {
+                $.get("{% url 'hospital_client:reOrder' %}", {prescri_id:$("#pres_id").val()}, function (res) {
+                    console.log(res);
+                    if (res.status == 'success'){
+                        alert('重复开单成功！新处方号：' + res.new_pres_id);
+                        var url = '{% url 'hospital_client:makeOrder' type='home' %}' + '?prescri_id=' + res.new_pres_id;
+                        var tab_id_new = "make_order";
+                        var tab_id = "prescription_make2";
+                        var title = "订单生成";
+                        parent.addTabNew(tab_id_new,url,title,tab_id);
+                    }else {
+                        alert('重复开单失败！原因：' + res.message);
+                    }
+                })
+            }
+        };
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+    });
+</script>
+</body>
+</html>

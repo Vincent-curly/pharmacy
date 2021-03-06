@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>机构来源管理</title>
+{#    <link rel="stylesheet" href="{% static 'css/backstage/style.css' %}">#}
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">企业名称:</div>
+                            <div class="layui-input-inline">
+                                <input type="text" name="companyname" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">企业编码:</div>
+                            <div class="layui-input-inline" style="width: 80px">
+                                <input type="text" name="companycode" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">创建时间:</div>
+                            <div class="layui-input-inline" style="width: 140px">
+                                <input type="text" class="layui-input laydate-item" name="creatTimeStart">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 140px">
+                                <input type="text" name="creatTimeEnd" class="layui-input laydate-item">
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-company-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                                <button class="layui-btn nav-active"
+                                        data-url="{% url 'hospital_client:companyManage' type='add' %}"
+                                        data-id="add_company" data-title="添加机构"><i class="iconfont icon-tianjia"></i>&nbsp;新增
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table id="LAY-company-back-manage" lay-filter="LAY-company-back-manage"></table>
+                <script type="text/html" id="table-company-operate">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                            class="layui-icon layui-icon-edit"></i>编辑</a>&nbsp;&nbsp;&nbsp;
+                    {% verbatim %}
+                    <a><input type="checkbox" name="is_disabled" value="{{ d.is_disabled }}" lay-skin="switch"
+                              lay-text="启用|禁用"
+                              lay-filter="switchStatus" {{ d.is_disabled== 1 ? 'checked' : '' }}></a>
+                    {% endverbatim %}
+                </script>
+                <script type="text/html" id="priceSetTpl">
+                    {% verbatim %}
+                    {{ d.isnot_showprice == 1 ? '仅显示结算价': d.isnot_showprice == 2 ? '仅显示销售价' :
+                    d.isnot_showprice == 3 ? '结算价销售价全显示' : d.isnot_showprice == 4 ? '结算价销售价全不显示' : ''}}
+                    {% endverbatim %}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script>
+    //JavaScript代码区域
+
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery;
+        var element = layui.element;
+        var form = layui.form;
+        var table = layui.table;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+
+        //时间段
+        lay('.laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'datetime'
+            });
+        });
+
+        //请求用户表信息，渲染
+        table.render({
+            elem: '#LAY-company-back-manage'
+            , url: '{% url 'hospital_client:tableData' type='company_table' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {checkbox: true, fixed: true}
+                , {field: 'id', title: '序号', width:80,align:'center',sort:true}
+                , {field: 'company_code', title: '编号', width:70,align: 'center'}
+                , {field: 'name', title: '机构名称',width:120, align: 'center'}
+                , {field: 'isnot_showprice', title: '价格显示配置',width:120, align: 'center',templet: '#priceSetTpl'}
+                , {field: 'unitprice', title: '代煎单价', align: 'center',width:90}
+                , {field: 'dj_tel', title: '代煎电话',width:90, align: 'center'}
+                , {field: 'tel', title: '机构电话', align: 'center',width:90}
+                , {field: 'address', title: '企业地址',width:200, align: 'center'}
+                , {field: 'create_time', title: '创建时间',width:120, align: 'center'}
+                , {field: 'right', title: '操作', align: 'center',width:160,toolbar: '#table-company-operate'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-company-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            //执行重载
+            table.reload('LAY-company-back-manage', {
+                where: {
+                    companyname: field.companyname,
+                    companycode: field.companycode,
+                    creattimestart: field.creatTimeStart,
+                    creattimeend: field.creatTimeEnd
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        //监听switch
+        form.on('switch(switchStatus)', function (obj) {
+            {#console.log(obj.elem);   //得到 checkbox 原始 DOM 对象#}
+            {#console.log(obj.elem.checked);           //开关是否开启，true 或者 false#}
+            {#console.log(obj.othis);           //得到美化后的 DOM 对象#}
+            var x = obj.elem.checked;
+            {#var id = obj.othis.parents('tr').find("td :first").text();#}
+            var status = obj.value;             //开关value值，也可以通过 data.elem.value 得到
+            var companyId = obj.othis.parents('tr').find('td').eq(1).text();       //查找当前行的username信息
+            {#console.log(companyId);#}
+            var formdata = {companyid: companyId, status: status};
+            var content = '';
+            if (status > 0) {
+                content += '确定停用该机构吗';
+            } else {
+                content += '确定启用该机构吗';
+            }
+            {#console.log(formdata);#}
+            layer.open({
+                content: content
+                , btn: ['确定', '取消']
+                , yes: function (index, layero) {
+                    obj.elem.checked = x;
+                    $.ajax({
+                        url: "{% url 'hospital_client:companyManage' type='updateStatus' %}",
+                        data: formdata,
+                        dataType: "TEXT",
+                        type: "POST",
+                        csrfmiddlewaretoken: '{{ csrf_token  }}',
+                        success: function (res) {
+                            setTimeout(function () {
+                                layer.close(index);     //关闭弹层
+                            }, 600);
+                        }
+                    });
+                    form.render();
+                    layer.close(index);
+                }
+                , btn2: function (index, layero) {
+                    obj.elem.checked = !x;
+                    form.render();
+                    //return false  开启这行代码可禁止点击该按钮关闭
+                }
+                , cancel: function () {
+                    //右上角关闭回调
+                    obj.elem.checked = !x;
+                    form.render();
+                    //return false  开启这行代码可禁止点击该按钮关闭
+                }
+            });
+            return false;
+        });
+
+
+        //工具栏
+        table.on("tool(LAY-company-back-manage)", function (e) {
+            var data = e.data;
+            {#console.log(data);#}
+            var companyId = data.id;
+            {#console.log(companyNum);#}
+            var url = '{% url 'hospital_client:companyManage' type='edit' %}' + '?companyid=' + companyId;
+            {#console.log(url);#}
+            var tab_id = "edit_company";
+            var title = "编辑机构";
+            if ('edit' === e.event) {
+                parent.addTabNew(tab_id,url,title);
+            }
+        });
+
+        $('.nav-active').on('click', function (obj) {
+            var dataid = $(this);
+            var url = dataid.attr("data-url");
+            var tab_id = dataid.attr("data-id");
+            var title = dataid.attr("data-title");
+            {#console.log('url:' + url + '  id:' + tab_id + '  title:' + title);#}
+            parent.addTabNew(tab_id, url, title);
+        });
+
+    })
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>药材销售统计报表</title>
+{#    <link rel="stylesheet" href="{% static 'css/backstage/style.css' %}">#}
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">所属机构:</div>
+                            <div class="layui-input-inline" style="width: 200px">
+                                <select name="company" id="company" lay-search>
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid">药材名称:</div>
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input type="text" name="drugs_name" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">药材编码:</div>
+                            <div class="layui-input-inline" style="width: 100px">
+                                <input type="text" name="drugs_code" autocomplete="off" class="layui-input">
+                            </div>
+                        </div>
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">下单时间:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" class="layui-input laydate-item" autocomplete="off" name="orderTimeStart">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="orderTimeEnd" autocomplete="off" class="layui-input laydate-item">
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-order-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" name="companyIdPassed" value="{{ company_belong.id }}" id="companyIdPassed"/>
+                        </div>
+                    </div>
+                </div>
+                <table id="LAY-drugsCount-manage" lay-filter="LAY-drugsCount-manage"></table>
+                <script type="text/html" id="toolbarDemo">
+                    <div class="layui-btn-container"></div>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+{#<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>#}
+<script>
+    //JavaScript代码区域
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery;
+        var element = layui.element;
+        var form = layui.form;
+        var table = layui.table;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+
+        //时间段
+        lay('.laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'datetime'
+            });
+        });
+
+        var companyId = $("#companyIdPassed").val();
+        {#console.log(companyId);#}
+        if (Number(companyId) == 1){
+            $.get("{% url 'hospital_client:company' %}", {}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        if (i ===0){
+                            $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                        }else {
+                            $("#company").append("<option value=" + list[i].pk + ">" + list[i].fields.name + "</option>");
+                        }
+                    }
+                }
+                form.render('select');
+            });
+        }else {
+            $.get("{% url 'hospital_client:company' %}", {companyId:companyId}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                    }
+                }
+                form.render('select');
+            });
+        }
+
+        table.render({
+            elem: '#LAY-drugsCount-manage'
+            , url: '{% url 'hospital_client:tableData' type='drugsSalesCount' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            ,toolbar: '#toolbarDemo' //开启头部工具栏，并为其绑定左侧模板
+            ,defaultToolbar: ['exports', 'print',]
+            ,title: '医院药材销售统计报表'
+            , cols: [[
+                {field: 'company', title: '机构名称', width: 200}
+                , {field: 'medicines', title: '药材名称', width: 130, align: 'center'}
+                , {field: 'drugs_num', title: '药材编码', width: 130, align: 'center'}
+                , {field: 'dose_totle', title: '药材总量', width: 130, align: 'center'}
+                , {field: 'unit_price', title: '药材单价', width: 130, align: 'center'}
+                , {field: 'unit', title: '药材单位', width: 130, align: 'center'}
+                , {field: 'price_totle', title: '药材总价', width: 130, align: 'center'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-order-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            if (field.company == ''){
+                layer.msg("请选择机构！");
+                return;
+            }
+            //执行重载
+            table.reload('LAY-drugsCount-manage', {
+                where: {
+                    company: field.company,
+                    drugsCode: field.drugs_code,
+                    drugsName: field.drugs_name,
+                    orderTimeEnd: field.orderTimeEnd,
+                    orderTimeStart: field.orderTimeStart,
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+    })
+
+
+</script>
+</body>
+</html>

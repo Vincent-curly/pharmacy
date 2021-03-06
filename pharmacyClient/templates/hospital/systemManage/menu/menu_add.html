@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加菜单</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="menu" id="menu" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <input type="hidden" name="menuid" id="menuid" class="layui-input">
+        <label class="layui-form-label">菜单名称:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="menuname" id="menuname" lay-verify="required" placeholder="请输入菜单名称" autocomplete="off" class="layui-input">
+        </div>
+        <label class="layui-form-label">icon:</label>
+        <div class="layui-input-inline">
+            <input type="text" name="menuicon" id="menuicon" lay-verify="required" class="layui-input">
+        </div>
+        <label class="layui-form-label">菜单类型:</label>
+        <div class="layui-input-inline">
+            <select name="menutype" id="menutype">
+                <option value="">请选择</option>
+                <option value="一级菜单">一级菜单</option>
+                <option value="二级菜单">二级菜单</option>
+                <option value="三级菜单">三级菜单</option>
+            </select>
+        </div>
+        <label class="layui-form-label">父级菜单:</label>
+        <div class="layui-input-inline">
+            <select name="parentMenu" id="parentMenu">
+                <option value="">请选择</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-back-submit" value="确认">
+    </div>
+</div>
+
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script>
+    function child(res, index) {
+        $("#menuname").val(res.title);
+        $("#menuid").val(res.id);
+        $("#menutype").val(res.menu_type);
+        $("#menuicon").val(res.icon);
+        $("#parentMenu").val(res.parent);
+    }
+
+    var callbackdata = function () {
+        var menuDatas = form.val("menu");   //获取表单值
+        {#console.log(menuDatas);#}
+        return menuDatas;
+    }
+
+    layui.use('form', function () {
+        window.form = layui.form;
+        var $ = layui.jquery;
+        $.get("{% url 'hospital_client:menuManage' type='parentMenu' %}", {}, function (data) {
+            var list = JSON.parse(data);        // 查询返回的时string ,需转换为对象再处理取值
+            {#console.log(list);#}
+            if (list != null || list.size() > 0) {
+                for (var i = 0; i < list.length; i++) {
+                    $("#parentMenu").append("<option value=" + list[i].pk + ">" + list[i].fields.title + "</option>");
+                }
+            }
+            form.render('select');
+        });
+    });
+</script>
+</body>
+</html>

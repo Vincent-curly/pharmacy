@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>角色管理</title>
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">角色名称:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="roleName" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-user-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                                <button class="layui-btn layuiadmin-btn-admin" data-type="add"><i class="iconfont icon-tianjia"></i>&nbsp;&nbsp;新增
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table id="LAY-user-role-manage" lay-filter="LAY-user-role-manage"></table>
+                <script type="text/html" id="table-useradmin-admin">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                            class="layui-icon layui-icon-edit"></i>编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                            class="layui-icon layui-icon-delete"></i>删除</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" style="background: #4a5365" lay-event="Authority"><i
+                            class="iconfont icon-quanxian1"></i>&nbsp;权限</a>
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/hospital/jQuery.md5.js' %}"></script>
+<script>
+    //JavaScript代码区域
+
+    //md5
+    function md5_code(data) {
+        return $.md5(data).toLowerCase()
+    }
+
+
+    layui.use(['form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery
+            ,form = layui.form
+            ,table = layui.table
+            ,layer = layui.layer;
+
+        //表格渲染
+        table.render({
+            initSort: {
+                field: 'role_id' //排序字段，对应 cols 设定的各字段名
+                , type: 'asc' //排序方式  asc: 升序、desc: 降序、null: 默认排序
+            }
+            , elem: '#LAY-user-role-manage'
+            , url: '{% url 'hospital_client:tableData' type='role_table' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {field: 'id', title: '序号', align: 'center', width: 92, sort: true}
+                , {field: 'role_name', title: '角色名称', width: 552, align: 'center'}
+                , {fixed: 'right', title: '操作', width: 320, align: 'center', toolbar: '#table-useradmin-admin'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-user-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            //执行重载
+            table.reload('LAY-user-role-manage', {
+                where: {
+                    rolename: field.roleName
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+
+        //事件
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2
+                    , title: '添加角色'
+                    , content: '{% url 'hospital_client:roleManage' type='roleAdd' %}'
+                    , area: ['420px', '200px']
+                    , btn: ['提交', '关闭']
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var body = layer.getChildFrame('body', index);              //得到iframe页的body内容
+                        {#console.log(body.html());                                   //得到iframe页的body内容#}
+                        {#body.find('input').val('Hi，我是从父页来的');                //设置子页面表单值#}
+                    }
+                    , yes: function (index) {
+                        var body = layer.getChildFrame('body', index); //得到iframe页的body内容
+                        var formdata = {
+                            rolename: body.find("#rolename").val()
+                        };
+                        {#console.log(formdata);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:roleManage' type='roleAdd' %}",
+                            data: formdata,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    table.reload('LAY-user-role-manage'); //数据刷新，静态更新表格中的数据
+                                    alert("角色: 【" + formdata['rolename'] + "】添加成功！")
+                                } else {
+                                    alert("角色: 【" + formdata['rolename'] + "】 添加失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);     //关闭弹层
+                                }, 600);
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        //工具栏
+        table.on("tool(LAY-user-role-manage)", function (e) {
+            {#console.log(e);#}
+            {#console.log(e.data);#}
+            var roleId = e.data.id;
+            {#console.log(roleId);#}
+            var roleName = e.data.role_name;
+            if ('edit' === e.event) {
+                layer.open({
+                    type: 2
+                    , title: '修改角色'
+                    , content: '{% url 'hospital_client:roleManage' type='roleEdit' %}'
+                    , area: ["420px", "200px"]
+                    , btn: ["保存", "取消"]
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];  //获取子页面的iframe
+                        iframe.child(e.data, index);     //向子页面的全局函数child传参
+                    }
+                    , yes: function (index) {
+                        var body = layer.getChildFrame('body', index); //得到iframe页的body内容
+                        var formdata = {
+                            roleid: body.find("#roleid").val(),
+                            rolename: body.find("#rolename").val()
+                        };
+                        {#console.log(formdata);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:roleManage' type='roleEdit' %}",
+                            data: formdata,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    table.reload('LAY-user-role-manage'); //数据刷新，静态更新表格中的数据
+                                    alert("角色修改成功！")
+                                } else {
+                                    alert("角色修改失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);     //关闭弹层
+                                }, 600);
+                            }
+                        });
+                    }
+                })
+            } else if ('del' === e.event) {
+                layer.prompt({
+                    formType: 1
+                    , title: '敏感操作，请验证口令'
+                }, function (value, index) {
+                    layer.confirm('确定删除吗？', function (index) {
+                        var delPassword = '58e6372e78ddf607a40f1e0e95354021';
+                        if (md5_code(value) === delPassword) {
+                            $.ajax({
+                                url: "{% url 'hospital_client:roleManage' type='roleDelete' %}",
+                                data: {'delData': e.data.id},
+                                type: 'POST',
+                                dataType: 'TEXT',
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                success: function (res) {
+                                    var msg = eval("(" + res + ")");
+                                    if (msg.status === 'success') {
+                                        table.reload('LAY-user-role-manage'); //数据刷新，静态更新表格中的数据
+                                        layer.msg('已删除');
+                                    } else {
+                                        layer.msg('删除失败！原因：' + msg.message);
+                                    }
+                                    setTimeout(function () {
+                                        layer.close(index);     //关闭弹层
+                                    }, 600);
+                                }
+                            })
+                        } else {
+                            alert('口令不正确，拒绝删除操作！')
+                        }
+                    });
+                    setTimeout(function () {
+                        layer.close(index);     //关闭弹层
+                    }, 600);
+                });
+            } else if ('Authority' === e.event){
+                layer.open({
+                    type: 2
+                    , title: '角色授权'
+                    , content: '{% url 'hospital_client:roleManage' type='authorize' %}'
+                    , area: ["520px", "520px"]
+                    , btn: ["提交", "取消"]
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];  //获取子页面的iframe
+                        iframe.preAuthority(roleId, index);     //向子页面的全局函数child传参
+                    }
+                    , yes: function (index) {
+                        layer.confirm('确定要修改' + roleName + '的权限吗？', function (index1){
+                            var iframe = window['layui-layer-iframe' + index];
+                            var Data = iframe.child(index);
+                            {#console.log(Data);#}
+                            var formdata ={roleId:roleId,data:JSON.stringify(Data)};
+                            $.ajax({
+                                url: "{% url 'hospital_client:roleManage' type='authorize' %}",
+                                data: formdata,
+                                dataType: "TEXT",
+                                type: "POST",
+                                csrfmiddlewaretoken: '{{ csrf_token  }}',
+                                success: function (res) {
+                                    {#console.log(res);#}
+                                    var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                    if (msg.status === 'success') {
+                                        table.reload('LAY-user-role-manage'); //数据刷新，静态更新表格中的数据
+                                        alert("角色授权成功！")
+                                    } else {
+                                        alert("角色授权失败！\n原因：" + msg.message)
+                                    }
+                                    setTimeout(function () {
+                                        layer.close(index);     //关闭弹层
+                                        layer.close(index1);     //关闭弹层
+                                    }, 600);
+                                }
+                            });
+                        })
+                    }
+                })
+            }
+        });
+
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    })
+
+
+</script>
+</body>
+</html>

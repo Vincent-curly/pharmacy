@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>订单收货信息添加</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {#  <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="orderAddressAdd" id="orderAddressAdd" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px"><span class="red">*</span>送货方式：</label>
+        <div class="layui-input-inline">
+            <input type="radio" name="is_hos_addr" id="is_hos_addr" value="1" title="医院" lay-filter="isHosAddrCheck">
+            <input type="radio" name="is_hos_addr" id="is_hos_addr" value="2" title="个人" lay-filter="isHosAddrCheck">
+            <input type="hidden" name="is_hos_addr_passed" id="is_hos_addr_passed" value="{{ order.is_hos_addr }}">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px"><span class="red">*</span>收货人姓名：</label>
+        <div class="layui-input-inline">
+            <input type="text" name="consignee" id="consignee" autocomplete="off" class="layui-input">
+            <input type="hidden" name="consignee_passed" id="consignee_passed" value="{{ order.consignee }}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px"><span class="red">*</span>收货人电话：</label>
+        <div class="layui-input-inline">
+            <input type="text" name="con_tel" id="con_tel" autocomplete="off" class="layui-input">
+            <input type="hidden" name="con_tel_passed" id="con_tel_passed" value="{{ order.con_tel }}" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label" style="width: 85px">送货时间：</label>
+        <div class="layui-input-block">
+            <div class="layui-input-inline">
+                <input type="text" class="layui-input laydate-item" autocomplete="off" name="send_goods_time">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label control_label" style="width: 85px"><span class="red">*</span>省/市/区(县)</label>
+        <div class="layui-input-block">
+            <div class="layui-input-inline" style="width: 150px">
+                <select name="comProvince" id="comProvince">
+                    <option value="">请选择省</option>
+                </select>
+                <input type="hidden" name="province_passed" id="province_passed" value="{{ order.provinces }}" class="layui-input">
+            </div>
+            <div class="layui-input-inline" style="width: 150px">
+                <select name="comCity" id="comCity">
+                    <option value="">请选择市</option>
+                </select>
+                <input type="hidden" name="city_passed" id="city_passed" value="{{ order.city }}" class="layui-input">
+            </div>
+            <div class="layui-input-inline" style="width: 150px">
+                <select name="comZone" id="comZone">
+                    <option value="">请选择区(县)</option>
+                </select>
+                <input type="hidden" name="zone_passed" id="zone_passed" value="{{ order.zone }}" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label class="layui-form-label control_label" style="width: 85px"><span class="red">*</span>详细地址</label>
+        <div class="layui-input-inline">
+            <input type="text" name="addr_str" id="addr_str" lay-verify="required" class="table_input" style="width: 500px">
+            <input type="hidden" name="add_passed" id="add_passed" value="{{ order.addr_str }}" class="layui-input">
+        </div>
+    </div>
+    <input type="hidden" class="table_input" value="{{ company_id }}" name="companyId" id="companyId">
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-back-submit" value="确认">
+    </div>
+</div>
+
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script src="{% static 'js/hospital/region.js' %}"></script>
+{#<script type="text/javascript" src="{% static 'js/hospital/jQuery.md5.js' %}"></script>#}
+<script>
+    window.onload=function () {
+        var cp = document.getElementById('comProvince');
+        var cc = document.getElementById('comCity');
+        var cz = document.getElementById('comZone');
+        region(cp,cc,cz);
+    };
+
+    function child(index) {
+        $("#is_hos_addr").val($("#is_hos_addr_passed").val());
+        $("#consignee").val($("#consignee_passed").val());
+        $("#con_tel").val($("#con_tel_passed").val());
+        $("#comProvince").val($("#province_passed").val());
+        $("#comCity").val($("#city_passed").val());
+        $("#comZone").val($("#zone_passed").val());
+        $("#addr_str").val($("#add_passed").val());
+    }
+
+    var callbackdata = function () {
+        var addrDatas = form.val("orderAddressAdd");   //获取表单值
+        {#console.log(addrDatas);#}
+        if (addrDatas.is_hos_addr == "") {
+            layer.msg("请选择送货方式！");
+            $("#is_hos_addr").focus();
+            return false;
+        }
+        if (addrDatas.comProvince == "") {
+            layer.msg("请选择省！");
+            $("#comProvince").focus();
+            return false;
+        }
+        if (addrDatas.comCity == "") {
+            layer.msg("请选择市！");
+            $("#comCity").focus();
+            return false;
+        }
+        if (addrDatas.comZone == "") {
+            layer.msg("请选择区！");
+            $("#comZone").focus();
+            return false;
+        }
+        if (addrDatas.consignee == "") {
+            layer.msg("请输入收货人姓名！");
+            $("#consignee").focus();
+            return false;
+        }
+        if (addrDatas.con_tel == "") {
+            layer.msg("请输入收货人电话！");
+            $("#con_tel").focus();
+            return false;
+        }
+        if (addrDatas.addr_str == "") {
+            layer.msg("请输入详细收货地址！");
+            $("#addr_str").focus();
+            return false;
+        }
+        return addrDatas;
+    };
+
+
+    layui.use(['form', 'layer', 'laydate'], function () {
+        var $ = layui.jquery;
+        window.form = layui.form;
+        window.layer = layui.layer;
+        var laydate = layui.laydate;
+
+        //时间段
+        lay('.laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'date'
+            });
+        });
+
+        form.render('select');
+
+        form.on('radio(isHosAddrCheck)', function (data) {
+            if (data.value == '1'){
+                $.get("{% url 'hospital_client:company' %}",{companyId:$("#companyId").val()},function (data) {
+                    var ar = JSON.parse(data);
+                    {#console.log(ar);#}
+                    form.val('orderAddressAdd', {
+                        "consignee": ar[0].fields.name
+                        ,"con_tel": ar[0].fields.tel
+                        ,"comProvince": ar[0].fields.province
+                        ,"comCity": ar[0].fields.city
+                        ,"comZone": ar[0].fields.zone
+                        ,"addr_str": ar[0].fields.address
+                    });
+                     form.render('select');
+                });
+            }else if (data.value == '2'){
+                form.val('orderAddressAdd', {
+                        "consignee": ' '
+                        ,"con_tel": ' '
+                        ,"comProvince": ' '
+                        ,"comCity": ' '
+                        ,"comZone": ' '
+                        ,"addr_str": ' '
+                    });
+                     form.render('select');
+            }
+        });
+    });
+</script>
+</body>
+</html>

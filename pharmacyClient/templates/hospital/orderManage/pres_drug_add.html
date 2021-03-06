@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>处方添加药材</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    {#  <link rel="stylesheet" href="../../../layuiadmin/layui/css/layui.css" media="all">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+</head>
+<body>
+
+<div class="layui-form" lay-filter="presDrugsAdd" id="presDrugsAdd" style="padding: 20px 30px 0 0;">
+    <div class="layui-form-item">
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px">处方号：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="presId" value="{{ pres_id }}" id="presId" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px">药品名称：</label>
+            <div class="layui-input-inline">
+                <select name="medicines" id="medicines" lay-filter="selectDrug" lay-search>
+                    <option value="">请选择</option>
+                </select>
+            </div>
+            <label class="layui-form-label" style="width: 85px">药品编码：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="drugs_num" id="drugs_num" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px"><span class="red">*</span>剂量：</label>
+            <div class="layui-input-inline">
+                <input type="text" oninput="setValue();"name="dose" id="dose" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label" style="width: 85px">单位：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="unit" id="unit" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px">用法：</label>
+            <div class="layui-input-inline">
+                <select name="m_usage" id="m_usage">
+                    <option value="">请选择</option>
+                    <option value="先煎" >先煎</option>
+                    <option value="后下" >后下</option>
+                    <option value="包煎" >包煎</option>
+                    <option value="另煎" >另煎</option>
+                    <option value="烊化" >烊化</option>
+                    <option value="冲服" >冲服</option>
+                    <option value="焗服" >焗服</option>
+                    <option value="冲碎" >冲碎</option>
+                </select>
+            </div>
+            <label class="layui-form-label" style="width: 85px">备注：</label>
+            <div class="layui-input-inline">
+                <input type="text" name="remark" id="remark" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px">结算单价：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="unit_price" id="unit_price" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label" style="width: 85px">结算总价：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="unit_price_totle" id="unit_price_totle" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+        <div class="layui-inline">
+            <label class="layui-form-label" style="width: 85px">销售单价：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="sale_price" id="sale_price" autocomplete="off" class="layui-input">
+            </div>
+            <label class="layui-form-label" style="width: 85px">销售总价：</label>
+            <div class="layui-input-inline">
+                <input type="text" readonly name="sale_price_totle" id="sale_price_totle" autocomplete="off" class="layui-input">
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item layui-hide">
+        <input type="button" lay-submit lay-filter="LAY-user-front-submit" id="LAY-user-back-submit" value="确认">
+    </div>
+</div>
+
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+{#<script type="text/javascript" src="{% static 'js/hospital/jQuery.md5.js' %}"></script>#}
+<script>
+
+    function setValue(){
+        var doseValue= $("#dose").val();
+        var JpD = $("#unit_price").val();
+        var XpD = $("#sale_price").val();
+        {#console.log(doseValue);#}
+        {#console.log(JpD);#}
+        {#console.log(XpD);#}
+        form.val('presDrugsAdd', {
+            "unit_price_totle": parseFloat(JpD * doseValue).toFixed(5),
+            "sale_price_totle": parseFloat(XpD * doseValue).toFixed(5)
+        });
+    };
+
+    function reset(index) {
+        location.reload();
+    }
+
+    var callbackdata = function () {
+        var drugsDatas = form.val("presDrugsAdd");   //获取表单值
+        {#console.log(drugsDatas);#}
+        if (drugsDatas.dose == "") {
+            layer.msg("请输入剂量！");
+            $("#dose").focus();
+            return false;
+        }
+        var typeTwo = "^(([0-9]+\.[0-9]*[1-9][0-9]*)|([0-9]*[1-9][0-9]*\.[0-9]+)|([0-9]*[1-9][0-9]*))$";
+        var re = new RegExp(typeTwo);
+        if ((drugsDatas.dose).match(re) == null) {
+            layer.msg("剂量必须是正数!");
+            $("#dose").focus();
+            return false;
+        }
+        return drugsDatas;
+    };
+
+
+    layui.use(['form', 'layer'], function () {
+        var $ = layui.jquery;
+        window.form = layui.form;
+        window.layer = layui.layer;
+
+        $.get("{% url 'hospital_client:herbs' %}", {}, function (data) {
+        window.list = JSON.parse(data);
+        {#console.log(list);#}
+        if (list != null || list.size() > 0) {
+            for (var i = 0; i < list.length; i++) {
+                $("#medicines").append("<option value=" + list[i].fields.drugs_name + ">" + list[i].fields.short_code + '.' + list[i].fields.drugs_name + "</option>");
+            }
+        }
+        form.render('select');
+        });
+
+        form.on('select(selectDrug)', function(data){
+            var selectValue = data.value;
+            {#console.log(selectValue);#}
+            for (var i = 0; i < list.length; i++){
+                if (list[i].fields.drugs_name === selectValue){
+                    var selectDrugsCode = list[i].fields.drugs_code;
+                    var selectUnit = list[i].fields.unit;
+                    var selectJpD = list[i].fields.price;
+                    var selectXpD = list[i].fields.sale_price;
+                }else { continue;}
+            }
+            form.val('presDrugsAdd', {
+                "drugs_num": selectDrugsCode,
+                "unit": selectUnit,
+                "unit_price": selectJpD,
+                "sale_price": selectXpD,
+            });
+        });
+    });
+</script>
+</body>
+</html>

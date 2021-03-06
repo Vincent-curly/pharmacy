@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+{% load static %}
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>添加机构</title>
+    <meta name="renderer" content="webkit">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}" media="all">
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+
+<table class="layui-table details_table1" width="100%" border="0" cellpadding="0" cellspacing="0">
+    <thead>
+    <tr>
+        <th colspan="6">添加机构</th>
+    </tr>
+    </thead>
+    <tbody class="layui-form" lay-filter="company">
+    <tr>
+        <td width="40%">企业名称&nbsp;<span class="red">*</span></td>
+        <td width="15%"><input type="text" class="table_input" name="companyName" id="companyName" style="width: 300px"></td>
+        <td>企业密码&nbsp;<span class="red">*</span></td>
+        <td width="15%"><input type="text" name="companyPass" id="companyPass" class="table_input"></td>
+        <td width="40%">企业编码&nbsp;<span class="red">*</span></td>
+        <td width="15%"><input type="text" name="companyCode" id="companyCode" class="table_input"></td>
+    </tr>
+    <tr>
+        <td width="10%">价格显示配置&nbsp;<span class="red">*</span></td>
+        <td width="10%"><select name="priceSet" id="priceSet" style="width: 300px">
+            <option value="">请选择</option>
+            <option value="1" >仅显示结算价</option>
+            <option value="2" >仅显示销售价</option>
+            <option value="3" >结算价销售价全显示</option>
+            <option value="4" >结算价销售价全不显示</option>
+        </select>
+        </td>
+        <td width="10%">代煎电话</td>
+        <td width="10%"><input type="text" name="dj_tel" id="dj_tel" class="table_input"></td>
+        <td width="10%">企业电话</td>
+        <td width="10%"><input type="text" name="tel" id="tel" class="table_input"></td>
+    </tr>
+    <tr>
+        <td width="10%">医院送货时间(今天)</td>
+        <td width="10%"><input type="text" class="layui-input test-laydate-item" name="sendTimeToday"></td>
+        <td width="10%">医院送货时间(明天)</td>
+        <td width="10%"><input type="text" class="layui-input test-laydate-item" name="sendTimeTomorrow"></td>
+        <td width="10%">代煎单价(元/袋)</td>
+        <td width="10%"><input type="text" name="unitPrice" id="unitPrice" class="table_input"></td>
+    </tr>
+    <tr>
+        <td width="10%">企业地址</td>
+        <td width="10%" colspan="3">
+            <div class="layui-form-item">
+                <label class="layui-form-label control_label">省/市/区(县)</label>
+                <div class="layui-input-block">
+                    <div class="layui-input-inline" style="width: 150px">
+                        <select name="comProvince" id="comProvince">
+                            <option value="">请选择省</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" style="width: 150px">
+                        <select name="comCity" id="comCity">
+                            <option value="">请选择市</option>
+                        </select>
+                    </div>
+                    <div class="layui-input-inline" style="width: 150px">
+                        <select name="comZone" id="comZone">
+                            <option value="">请选择区(县)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="layui-form-item">
+                <label class="layui-form-label control_label">详细地址</label>
+                <div class="layui-input-inline">
+                    <input type="text" name="comAddress" id="comAddress" lay-verify="required" class="table_input" style="width: 500px">
+                </div>
+            </div>
+            <input type="hidden" name="comAddr" id="comAddr"/>
+        </td>
+        <td width="10%">打包剂量(ml)</td>
+        <td width="10%"><input type="text" name="packDose" id="packDose" class="table_input"></td>
+    </tr>
+    <tr>
+        <td width="10%">企业介绍</td>
+        <td width="10%" colspan="3"><input type="text" class="table_input" name="companyDescription" id="companyDescription" style="width: 590px"></td>
+        <td width="10%"></td>
+        <td width="10%"></td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+        <td colspan="6">
+            <button class="layui-btn layuiadmin-btn-admin" lay-submit lay-filter="LAY-company-back-save">保存</button>
+        </td>
+    </tr>
+    </tfoot>
+</table>
+
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/region.js' %}"></script>
+<script>
+    window.onload=function () {
+        var cp = document.getElementById('comProvince');
+        var cc = document.getElementById('comCity');
+        var cz = document.getElementById('comZone');
+        region(cp,cc,cz);
+    };
+
+    function checkdata(data1){
+        if (data1.companyName.length == 0) {
+            layer.msg("请输入机构名称！");
+            $("#companyName").focus();
+            return false;
+        }
+        if (data1.companyPass.length == 0){
+            layer.msg("请输入机构密码！")
+            $("#companyPass").focus();
+            return false;
+        }
+        if (data1.companyCode.length == 0) {
+            layer.msg("请输入机构编码！");
+            $("#companyCode").focus();
+            return false;
+        }
+        if (data1.priceSet <= 0) {
+            layer.msg("请选择价格显示配置！");
+            return false;
+        }
+        else {
+            return true;
+        }
+    };
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        window.$ = layui.jquery;
+        var form = layui.form;
+        var table = layui.table;
+        var element = layui.element;
+        var laydate = layui.laydate;
+        window.layer = layui.layer;
+
+        //时间段
+        lay('.test-laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'time'
+            });
+        });
+
+
+        //监听保存
+        form.on('submit(LAY-company-back-save)', function (data) {
+            var companyDatas = form.val("company");   //获取表单值
+            {#console.log(companyDatas);#}
+            {#console.log(companyDatas.companyName);#}
+            {#console.log(companyDatas.companyType);#}
+            var status = checkdata(companyDatas);
+            {#console.log(status);#}
+            if (status){
+                $.ajax({
+                    url: "{% url 'hospital_client:companyManage' type='add' %}",
+                    {#data: JSON.stringify(goodsdata),#}
+                    data: companyDatas,
+                    dataType: "TEXT",
+                    type: "POST",
+                    csrfmiddlewaretoken: '{{ csrf_token  }}',
+                    success: function (res) {
+                        var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                        if (msg.status === 'success') {
+                            layer.msg('机构添加成功');
+                        } else {
+                            layer.msg(msg.message);
+                        }
+                    }
+                });
+            }
+
+        });
+
+    });
+
+
+</script>
+</body>
+</html>

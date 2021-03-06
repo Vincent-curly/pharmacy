@@ -1,0 +1,99 @@
+body {
+    background: #999292
+}
+
+.header {
+    width: 100%;
+    height: 41px;
+    background: #999292 repeat-x;
+}
+
+.center {
+    width: 100%;
+    height: 532px;
+    background: whitesmoke repeat-x;
+}
+
+.login_right {
+    float: right;
+    width: 50%;
+    height: 100%;
+    background: white;
+}
+
+.login_left{float:right;width:710px;height:100%;background: url(../../img/hospital/login-wel.png) no-repeat top right;}
+
+.login_input {
+    width: 150px;
+    height: 20px;
+    margin-left: 30px;
+    border: 1px solid #7F9DB9;
+    vertical-align: middle;
+}
+
+.login_code {
+    width: 70px;
+    height: 20px;
+    margin-left: 30px;
+    border: 1px solid #7F9DB9;
+    vertical-align: middle;
+}
+
+.login_title {
+    color: #666666;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+    height: 36px;
+    line-height: 36px;
+    margin-left: 35px;
+}
+
+.login_info {
+    color: #999292;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    height: 36px;
+    line-height: 36px;
+    margin-left: 35px;
+}
+
+.login_info img {
+    vertical-align: middle;
+    cursor: pointer;
+}
+
+.errInfo {
+    color: red;
+}
+
+.btn {
+    width: 60px;
+    height: 25px;
+    border-width: 0px;
+    background: ButtonShadow;
+    letter-spacing: 3px;
+    margin-right: 70px;
+    cursor: pointer;
+}
+
+.left_txt {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    line-height: 25px;
+    color: #666666;
+    margin-top: 20px;
+    text-align: center
+}
+
+.bottom {
+    width: 100%;
+    height: auto;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    color: #ABCAD3;
+    text-decoration: none;
+    line-height: 20px;
+    margin-top: 30px;
+}

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>菜单管理</title>
+    <link rel="stylesheet" href="{% static 'css/hospital/style.css' %}">
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">菜单名称:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="menuName" autocomplete="off" class="layui-input">
+                            </div>
+                            <div class="layui-form-mid">菜单类型:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <select name="menuType" id="menuType">
+                                    <option value="">请选择</option>
+                                    <option value="一级菜单">一级菜单</option>
+                                    <option value="二级菜单">二级菜单</option>
+                                    <option value="三级菜单">三级菜单</option>
+                                </select>
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-user-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-user-back-reset"><i class="iconfont icon-reset"></i>
+                                </button>
+                                <button class="layui-btn layuiadmin-btn-admin" data-type="add"><i class="iconfont icon-tianjia"></i>&nbsp;&nbsp;新增
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <table id="menu-manage" lay-filter="menu-manage"></table>
+                <script type="text/html" id="table-menu-manage">
+                    <a class="layui-btn layui-btn-normal layui-btn-xs" lay-event="edit"><i
+                            class="layui-icon layui-icon-edit"></i>编辑</a>
+                    <a class="layui-btn layui-btn-danger layui-btn-xs" lay-event="del"><i
+                            class="layui-icon layui-icon-delete"></i>删除</a>
+                </script>
+            </div>
+        </div>
+    </div>
+<script src="{% static 'layui/layui.js' %}"></script>
+<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/hospital/jQuery.md5.js' %}"></script>
+<script>
+    //JavaScript代码区域
+
+    //md5
+    function md5_code(data) {
+        return $.md5(data).toLowerCase()
+    }
+
+
+    layui.use(['form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery
+            ,form = layui.form
+            ,table = layui.table
+            ,layer = layui.layer;
+
+        //表格渲染
+        table.render({
+            elem: '#menu-manage'
+            , url: '{% url 'hospital_client:tableData' type='menu_table' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {field: 'id', title: '序号', align: 'center', width: 90, sort: true}
+                , {field: 'title', title: '菜单名称', width: 150, align: 'center'}
+                , {field: 'icon', title: '图标', width: 250, align: 'center'}
+                , {field: 'menu_type', title: '菜单类型', width: 120, align: 'center'}
+                , {field: 'parent_id', title: '上级菜单', width: 200, align: 'center'}
+                , {field: 'right', title: '操作', width: 152, align: 'center', toolbar: '#table-menu-manage'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-user-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            //执行重载
+            table.reload('menu-manage', {
+                where: {
+                    menuname: field.menuName,
+                    menutype: field.menuType
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        //监听重置
+        form.on('submit(LAY-user-back-reset)', function (data) {
+            location.reload();
+        });
+
+        //事件
+        var active = {
+            add: function () {
+                layer.open({
+                    type: 2
+                    , title: '添加菜单'
+                    , content: '{% url 'hospital_client:menuManage' type='menuAdd' %}'
+                    , area: ['450px', '350px']
+                    , btn: ['提交', '关闭']
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var body = layer.getChildFrame('body', index);              //得到iframe页的body内容
+                        {#console.log(body.html());                                   //得到iframe页的body内容#}
+                        {#body.find('input').val('Hi，我是从父页来的');                //设置子页面表单值#}
+                    }
+                    , yes: function (index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        var Data = iframe.callbackdata(index);
+                        {#console.log(Data);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:menuManage' type='menuAdd' %}",
+                            data: Data,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    table.reload('menu-manage'); //数据刷新，静态menu更新表格中的数据
+                                    alert("菜单: 【" + Data['menuname'] + "】添加成功！")
+                                } else {
+                                    alert("菜单: 【" + Data['menuname'] + "】 添加失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);     //关闭弹层
+                                }, 600);
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        //工具栏
+        table.on("tool(menu-manage)", function (e) {
+            var menuId = e.data.id;
+            if ('edit' === e.event) {
+                layer.open({
+                    type: 2
+                    , title: '修改菜单'
+                    , content: '{% url 'hospital_client:menuManage' type='menuEdit' %}'
+                    , area: ["450px", "350px"]
+                    , btn: ["保存", "取消"]
+                    , btnAlign: 'c'
+                    , success: function (layero, index) {
+                        var iframe = window['layui-layer-iframe' + index];  //获取子页面的iframe
+                        iframe.child(e.data, index);     //向子页面的全局函数child传参
+                    }
+                    , yes: function (index) {
+                        var iframe = window['layui-layer-iframe' + index];
+                        var Data = iframe.callbackdata(index);
+                        {#console.log(Data);#}
+                        $.ajax({
+                            url: "{% url 'hospital_client:menuManage' type='menuEdit' %}",
+                            data: Data,
+                            dataType: "TEXT",
+                            type: "POST",
+                            csrfmiddlewaretoken: '{{ csrf_token  }}',
+                            success: function (res) {
+                                var msg = eval("(" + res + ")");        //坑！必须转换成json对象后才能判断status
+                                if (msg.status === 'success') {
+                                    table.reload('menu-manage'); //数据刷新，静态更新表格中的数据
+                                    alert("菜单修改成功！")
+                                } else {
+                                    alert("菜单修改失败！\n原因：" + msg.message)
+                                }
+                                setTimeout(function () {
+                                    layer.close(index);     //关闭弹层
+                                }, 600);
+                            }
+                        });
+                    }
+                })
+            } else if ('del' === e.event) {
+                layer.prompt({
+                    formType: 1
+                    , title: '敏感操作，请验证口令'
+                }, function (value, index) {
+                    layer.confirm('确定删除吗？', function (index) {
+                        var delPassword = '58e6372e78ddf607a40f1e0e95354021';
+                        if (md5_code(value) === delPassword) {
+                            $.ajax({
+                                url: "{% url 'hospital_client:menuManage' type='menuDelete' %}",
+                                data: {'delData': e.data.id},
+                                type: 'POST',
+                                dataType: 'TEXT',
+                                csrfmiddlewaretoken: '{{ csrf_token }}',
+                                success: function (res) {
+                                    var msg = eval("(" + res + ")");
+                                    if (msg.status === 'success') {
+                                        table.reload('menu-manage'); //数据刷新，静态更新表格中的数据
+                                        layer.msg('已删除');
+                                    } else {
+                                        layer.msg('删除失败！原因：' + msg.message);
+                                    }
+                                    setTimeout(function () {
+                                        layer.close(index);     //关闭弹层
+                                    }, 600);
+                                }
+                            })
+                        } else {
+                            alert('口令不正确，拒绝删除操作！')
+                        }
+                    });
+                    setTimeout(function () {
+                        layer.close(index);     //关闭弹层
+                    }, 600);
+                });
+            }
+        });
+
+        $('.layui-btn.layuiadmin-btn-admin').on('click', function () {
+            var type = $(this).data('type');
+            active[type] ? active[type].call(this) : '';
+        });
+
+    })
+
+
+</script>
+</body>
+</html>

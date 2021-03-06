@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>处方查询</title>
+{#    <link rel="stylesheet" href="{% static 'css/backstage/style.css' %}">#}
+{#    <link rel="stylesheet" href="{% static 'css/mall/bootstrap.min.css' %}">#}
+    <link rel="stylesheet" href="{% static 'layui/css/layui.css' %}">
+    <link href="{% static 'fonts/hospital/iconfont.css' %}" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div>
+    <div class="layui-row">
+        <div class="layui-card">
+            <div class="layui-card-body">
+                <div class="form-box">
+                    <div class="layui-form layui-form-item">
+                        <div class="layui-inline">
+                            <div class="layui-form-mid">所属机构:</div>
+                            <div class="layui-input-inline" style="width: 200px">
+                                <select name="company" id="company" lay-search>
+                                    <option value="">请选择</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid">处方类型:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <select name="is_suffering" id="is_suffering">
+                                    <option value="">请选择</option>
+                                    <option value="0">饮片</option>
+                                    <option value="1">代煎</option>
+                                </select>
+                            </div>
+                            <div class="layui-form-mid">下单时间:</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" class="layui-input laydate-item" autocomplete="off" name="orderTimeStart">
+                            </div>
+                            <div class="layui-form-mid">-</div>
+                            <div class="layui-input-inline" style="width: 150px">
+                                <input type="text" name="orderTimeEnd" autocomplete="off" class="layui-input laydate-item">
+                            </div>
+                            <div class="layui-inline">
+                                <button class="layui-btn layuiadmin-btn-admin" lay-submit
+                                        lay-filter="LAY-order-back-search">
+                                    <i class="layui-icon layui-icon-search layuiadmin-button-btn"></i>
+                                </button>
+                            </div>
+                            <input type="hidden" name="companyIdPassed" value="{{ company_belong.id }}" id="companyIdPassed"/>
+                        </div>
+                    </div>
+                </div>
+                <table id="LAY-prescription-manage" lay-filter="LAY-prescription-manage"></table>
+                <script id="presTypeTpl" type="text/html">
+                    {% verbatim %}
+                    {{ d.is_suffering == 1 ? '<span style="color: red;">代煎</span>' :
+                    d.is_suffering== 0 ? '<span style="color: green;">饮片</span>' :　'' }}
+                    {% endverbatim %}
+                </script>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{% static 'layui/layui.js' %}"></script>
+{#<script src="{% static 'js/hospital/jquery-1.12.3.min.js' %}"></script>#}
+<script>
+    //JavaScript代码区域
+
+    layui.use(['element', 'form', 'table', 'laydate', 'layer'], function () {
+        var $ = layui.jquery;
+        var element = layui.element;
+        var form = layui.form;
+        var table = layui.table;
+        var layer = layui.layer;
+        var laydate = layui.laydate;
+
+        //时间段
+        lay('.laydate-item').each(function () {
+            laydate.render({
+                elem: this
+                , trigger: 'click'
+                , type: 'datetime'
+            });
+        });
+
+        var companyId = $("#companyIdPassed").val();
+        {#console.log(companyId);#}
+        if (Number(companyId) == 1){
+            $.get("{% url 'hospital_client:company' %}", {}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        if (i ===0){
+                            $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                        }else {
+                            $("#company").append("<option value=" + list[i].pk + ">" + list[i].fields.name + "</option>");
+                        }
+                    }
+                }
+                form.render('select');
+            });
+        }else {
+            $.get("{% url 'hospital_client:company' %}", {companyId:companyId}, function (data) {
+                var list = JSON.parse(data);
+                if (list != null || list.size() > 0) {
+                    for (var i = 0; i < list.length; i++) {
+                        $("#company").append('<option value="' + list[i].pk + '" selected>' + list[i].fields.name + '</option>');
+                    }
+                }
+                form.render('select');
+            });
+        }
+
+        table.render({
+            elem: '#LAY-prescription-manage'
+            , url: '{% url 'hospital_client:tableData' type='prescription_lists' %}'
+            , page: true
+            , limit: 10
+            , limits: [10, 15, 20]
+            , cols: [[
+                {field: 'prescri_id', title: '处方号', width: 130, align: 'center', style: 'cursor: pointer;color:#00c2d3', event: 'viewPrescription'}
+                , {field: 'treat_card_id', title: '患者ID', width: 130, align: 'center'}
+                , {field: 'user_name', title: '患者姓名', width: 90, align: 'center'}
+                , {field: 'tel', title: '患者电话', width: 130, align: 'center'}
+                , {field: 'amount', title: '剂数', width: 90, align: 'center'}
+                , {field: 'per_pack_num', title: '每剂打包数', width: 90, align: 'center'}
+                , {field: 'suffering_num', title: '代煎数量', width: 90, align: 'center'}
+                , {field: 'pres_price_totle', title: '处方结算价', width: 110, align: 'center'}
+                , {field: 'pres_sale_price_totle', title: '处方销售价', width: 110, align: 'center'}
+                , {field: 'is_suffering', title:'类型', align: 'center', templet: "#presTypeTpl"}
+                , {field: 'create_time', title: '处方时间', width: 160, align: 'center'}
+            ]]
+        });
+
+        //监听搜索
+        form.on('submit(LAY-order-back-search)', function (data) {
+            var field = data.field;
+            {#console.log(field);#}
+            if (field.company == ''){
+                layer.msg("请选择机构！");
+                return;
+            }
+            //执行重载
+            table.reload('LAY-prescription-manage', {
+                where: {
+                    company: field.company,
+                    isSuffering: field.is_suffering,
+                    orderTimeEnd: field.orderTimeEnd,
+                    orderTimeStart: field.orderTimeStart,
+                },
+                page: {
+                    curr: 1
+                }
+            });
+            return false;
+        });
+
+        //监听单元格事件
+        table.on('tool(LAY-prescription-manage)', function (obj) {
+            var data = obj.data;
+            {#console.log(data);#}
+            var presId = data.prescri_id;
+            var url = '{% url 'hospital_client:prescriptionMake' type='secondStep' %}' + '?prescri_id=' + presId;
+            var tab_id_new = "prescription_make2";
+            {#var tab_id = "prescription_make";#}
+            var title = "处方笺";
+            if (obj.event === 'viewPrescription') {
+                parent.addTabNew(tab_id_new,url,title);
+            }
+        });
+    })
+
+
+</script>
+</body>
+</html>
